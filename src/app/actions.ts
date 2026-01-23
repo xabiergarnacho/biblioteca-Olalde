@@ -30,6 +30,34 @@ type LoanRow = {
   book?: BookRow
 }
 
+export async function getActiveLoansCount(): Promise<number> {
+  const supabase = await createClient()
+
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession()
+
+  if (sessionError || !session) {
+    return 0
+  }
+
+  const userId = session.user.id
+
+  const { count, error } = await supabase
+    .from("loans")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .is("returned_at", null)
+
+  if (error) {
+    console.error("Error contando préstamos activos:", error)
+    return 0
+  }
+
+  return count ?? 0
+}
+
 export async function borrowBook(bookId: string | number) {
   const supabase = await createClient()
 
@@ -44,6 +72,12 @@ export async function borrowBook(bookId: string | number) {
 
   const userId = session.user.id
   const bookIdNum = typeof bookId === 'string' ? parseInt(bookId, 10) : bookId
+
+  // Verificar que el usuario no tenga más de 2 préstamos activos
+  const activeLoansCount = await getActiveLoansCount()
+  if (activeLoansCount >= 2) {
+    throw new Error("Ya tienes 2 libros reservados. Devuelve uno antes de coger otro.")
+  }
 
   const { data: book, error: bookError } = await supabase
     .from("books")
