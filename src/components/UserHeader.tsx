@@ -47,34 +47,32 @@ export default async function UserHeader() {
     "U"
 
   return (
-    <header className="sticky top-0 z-50 flex w-full justify-center border-b border-slate-100 bg-white/80 backdrop-blur-md">
-      <div className="flex w-full max-w-5xl items-center justify-between px-6 py-4 text-sm">
-        <div className="font-semibold tracking-tight">
-          Biblioteca Olalde
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Avatar>
+    <header className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md">
+      <div className="grid w-full max-w-5xl grid-cols-3 items-center px-6 py-4 mx-auto">
+        {/* Columna 1: Vacía para equilibrio */}
+        <div></div>
+
+        {/* Columna 2: Información del usuario centrada (Pill) */}
+        <div className="flex justify-center">
+          <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-100/50 backdrop-blur-sm pl-1 pr-4 py-1">
+            <Avatar className="h-7 w-7">
               {avatarUrl ? (
                 <AvatarImage src={avatarUrl} alt={displayName} />
               ) : null}
-              <AvatarFallback>{initials}</AvatarFallback>
+              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
             </Avatar>
-            <div className="flex flex-col leading-tight">
-              <span className="text-sm font-medium text-slate-700">{displayName}</span>
-              {email && !fullName && (
-                <span className="text-xs text-muted-foreground">
-                  {email}
-                </span>
-              )}
-            </div>
+            <span className="text-sm font-medium text-slate-700">{displayName}</span>
           </div>
+        </div>
+
+        {/* Columna 3: Botón de cerrar sesión */}
+        <div className="flex justify-end">
           <form action={signOut}>
             <Button
               type="submit"
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 text-slate-500 hover:text-slate-900"
+              className="h-8 w-8 p-0 text-slate-400 transition-colors hover:text-red-500"
             >
               <LogOut className="h-4 w-4" />
               <span className="sr-only">Cerrar sesión</span>
