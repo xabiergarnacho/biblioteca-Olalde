@@ -137,10 +137,10 @@ export default async function Home() {
     <div className="flex min-h-screen w-full items-center justify-center bg-white px-4 py-16 font-sans">
       <main className="flex w-full max-w-5xl flex-col gap-12">
         <header className="space-y-4 text-center">
-          <h1 className="text-5xl font-extrabold tracking-tighter text-slate-900">
+          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-slate-900">
             Biblioteca Olalde
           </h1>
-          <p className="text-base text-slate-500">
+          <p className="text-lg text-slate-500 font-normal mt-2">
             Coge un libro, disfrútalo y recuerda devolverlo a su sitio.
           </p>
         </header>
