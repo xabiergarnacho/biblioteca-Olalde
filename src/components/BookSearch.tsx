@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition, FormEvent } from "react"
-import { Search } from "lucide-react"
+import { Search, BookOpen } from "lucide-react"
 import { toast } from "sonner"
 
 import { borrowBook, searchBooks } from "@/app/actions"
@@ -100,10 +100,10 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
         <div className="relative">
           <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
           <Input
-            placeholder="Busca por título o autor..."
+            placeholder="Busca por título, autor o ISBN..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="h-14 w-full rounded-2xl border-slate-200 bg-white pl-12 pr-4 text-base shadow-lg shadow-slate-200/50 transition-shadow focus-visible:shadow-xl focus-visible:shadow-slate-300/50"
+            className="h-14 w-full rounded-2xl border-slate-200 bg-white py-4 pl-12 pr-4 text-base shadow-2xl shadow-blue-900/10 transition-all duration-200 focus-visible:scale-[1.02] focus-visible:shadow-2xl focus-visible:shadow-blue-900/20"
           />
         </div>
       </form>
@@ -115,7 +115,8 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
       )}
 
       {!hasResults && !isSearching && query && (
-        <div className="py-12 text-center">
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <BookOpen className="mb-4 h-24 w-24 text-gray-200" />
           <p className="text-base text-slate-500">
             No se encontraron resultados para "{query}"
           </p>
@@ -126,9 +127,10 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
       )}
 
       {!query && !hasResults && (
-        <div className="py-12 text-center">
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <BookOpen className="mb-4 h-24 w-24 text-gray-200" />
           <p className="text-base text-slate-500">
-            Escribe en el buscador para encontrar libros disponibles
+            La biblioteca te espera. Empieza a escribir.
           </p>
         </div>
       )}

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { signOut } from "@/app/actions"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { Button } from "./ui/button"
+import { LogOut } from "lucide-react"
 
 export default async function UserHeader() {
   // Verificar que las variables de entorno estén configuradas
@@ -60,7 +61,7 @@ export default async function UserHeader() {
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col leading-tight">
-              <span className="font-medium">{displayName}</span>
+              <span className="text-sm font-medium text-slate-700">{displayName}</span>
               {email && !fullName && (
                 <span className="text-xs text-muted-foreground">
                   {email}
@@ -71,11 +72,12 @@ export default async function UserHeader() {
           <form action={signOut}>
             <Button
               type="submit"
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="text-xs"
+              className="h-8 w-8 p-0 text-slate-500 hover:text-slate-900"
             >
-              Cerrar sesión
+              <LogOut className="h-4 w-4" />
+              <span className="sr-only">Cerrar sesión</span>
             </Button>
           </form>
         </div>

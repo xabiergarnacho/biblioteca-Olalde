@@ -49,12 +49,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] px-4 py-12">
       <div className="w-full max-w-md">
-        <div className="rounded-2xl border border-slate-100 bg-white p-10 shadow-xl shadow-slate-200/60">
+        <div className="rounded-2xl border border-slate-100 border-t-4 border-t-blue-600 bg-white p-10 shadow-xl">
           {/* Encabezado */}
           <div className="mb-8 text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
               Biblioteca Olalde
             </h1>
             <p className="mt-2 text-sm text-slate-500">
