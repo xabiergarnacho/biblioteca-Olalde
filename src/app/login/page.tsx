@@ -58,13 +58,13 @@ export default function LoginPage() {
             <Image
               src="/logo-olalde.svg"
               alt="Logotipo Olalde"
-              width={190}
+              width={192}
               height={120}
-              className="mx-auto mb-6"
+              className="mx-auto"
               priority
             />
-            <p className="text-sm text-slate-500">
-              Inicia sesión para gestionar tus préstamos
+            <p className="text-lg text-gray-500 font-medium mt-4 mb-8">
+              Donde las grandes historias te esperan.
             </p>
           </div>
 

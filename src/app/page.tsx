@@ -139,14 +139,15 @@ export default async function Home() {
       <main className="flex w-full max-w-5xl flex-col gap-12">
         <header className="space-y-4 text-center">
           <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-slate-900">
+            <h1 className="text-6xl md:text-7xl font-black tracking-tighter text-black">
               Biblioteca
             </h1>
             <Image
               src="/logo-olalde.svg"
               alt="Logotipo Olalde"
-              width={240}
-              height={96}
+              width={200}
+              height={80}
+              className="mt-2"
               priority
             />
           </div>
