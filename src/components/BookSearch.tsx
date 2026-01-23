@@ -6,6 +6,7 @@ import { Search, BookOpen, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { borrowBook, searchBooks, getActiveLoanWithBook, type Book } from "@/app/actions"
+import { createClient } from "@/lib/supabase/client"
 import { Button } from "./ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Input } from "./ui/input"
@@ -29,7 +30,40 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
   } | null>(null)
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Debounce para la búsqueda (400ms)
+  // Función helper para verificar préstamos activos (Zero-Trust)
+  const checkActiveLoansCount = async (): Promise<number> => {
+    try {
+      const supabase = createClient()
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession()
+
+      if (sessionError || !session) {
+        return 0
+      }
+
+      const userId = session.user.id
+
+      const { count, error } = await supabase
+        .from("loans")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .is("returned_at", null)
+
+      if (error) {
+        console.error("Error contando préstamos activos:", error)
+        return 0
+      }
+
+      return count ?? 0
+    } catch (err) {
+      console.error("Error en checkActiveLoansCount:", err)
+      return 0
+    }
+  }
+
+  // Debounce para la búsqueda (500ms)
   useEffect(() => {
     // Limpiar el timer anterior si existe
     if (debounceTimerRef.current) {
@@ -42,7 +76,7 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
       return
     }
 
-    // Configurar nuevo timer
+    // Configurar nuevo timer (500ms)
     debounceTimerRef.current = setTimeout(() => {
       startSearching(async () => {
         try {
@@ -54,7 +88,7 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
           setBooks([])
         }
       })
-    }, 400)
+    }, 500)
 
     // Cleanup
     return () => {
@@ -70,13 +104,46 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
   }
 
   const handleReserve = async (book: Book) => {
+    // Validaciones iniciales
     if (!book.disponible || isReserving === book.id) {
       return
     }
 
+    // Activar estado de reserva
     setIsReserving(book.id)
 
     try {
+      // ============================================
+      // LÓGICA ZERO-TRUST: Verificar límite PRIMERO
+      // ============================================
+      const activeLoansCount = await checkActiveLoansCount()
+
+      // CONDICIÓN BLOQUEANTE: Si count >= 1, DETENER inmediatamente
+      if (activeLoansCount >= 1) {
+        toast.error(
+          "Límite alcanzado: Ya tienes un libro en préstamo. Devuélvelo antes de coger otro."
+        )
+
+        // Intentar obtener información del préstamo activo para mostrar el componente bonito
+        try {
+          const loanInfo = await getActiveLoanWithBook()
+          if (loanInfo) {
+            setCurrentLoanInfo(loanInfo)
+            setShowEncouragement(true)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+          }
+        } catch {
+          // Si falla, no pasa nada, ya mostramos el toast
+        }
+
+        setIsReserving(null)
+        return // DETENER la ejecución
+      }
+
+      // ============================================
+      // TRANSACCIÓN DE RESERVA (Solo si count === 0)
+      // ============================================
+      
       // Optimistic update: marcamos como no disponible visualmente
       setBooks((prev) =>
         prev.map((b) =>
@@ -84,44 +151,26 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
         )
       )
 
-      // Intentar reservar (la verificación del límite se hace dentro de borrowBook)
+      // Paso A: Insertar préstamo y actualizar libro (borrowBook hace ambos)
       await borrowBook(book.id)
 
-      // Éxito
-      toast.success("¡Libro reservado! Disfruta de la lectura.")
+      // Paso B: Feedback de éxito
+      toast.success("Libro reservado correctamente")
 
-      // Esperar 1 segundo y redirigir a la home donde se verá el préstamo activo
+      // Paso C: Recargar la página para mostrar el préstamo activo
       setTimeout(() => {
-        router.push("/")
-        router.refresh() // Forzar recarga para mostrar el préstamo activo
+        window.location.reload()
       }, 1000)
     } catch (err) {
       console.error(err)
-      
+
       const message =
         err instanceof Error
           ? err.message
           : "No se ha podido registrar el préstamo"
 
-      // Si es el error de límite alcanzado, mostrar el componente bonito
-      if (message.includes("Solo puedes tener 1 libro prestado")) {
-        try {
-          const loanInfo = await getActiveLoanWithBook()
-          if (loanInfo) {
-            setCurrentLoanInfo(loanInfo)
-            setShowEncouragement(true)
-            // Scroll suave hacia arriba para mostrar el componente
-            window.scrollTo({ top: 0, behavior: 'smooth' })
-          } else {
-            toast.error(message)
-          }
-        } catch {
-          toast.error(message)
-        }
-      } else {
-        // Mostrar error con toast para otros errores
-        toast.error(message)
-      }
+      // Mostrar error con toast
+      toast.error(message)
 
       // Revertir el estado optimista
       setBooks((prev) =>
