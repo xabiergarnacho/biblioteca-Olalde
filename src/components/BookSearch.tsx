@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation"
 import { Search, BookOpen, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
-import { borrowBook, searchBooks, type Book } from "@/app/actions"
+import { borrowBook, searchBooks, getActiveLoanWithBook, type Book } from "@/app/actions"
 import { Button } from "./ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Input } from "./ui/input"
+import { ReadingEncouragement } from "./ReadingEncouragement"
 
 type BookSearchProps = {
   initialBooks?: Book[]
@@ -20,6 +21,12 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
   const [books, setBooks] = useState<Book[]>(initialBooks)
   const [isSearching, startSearching] = useTransition()
   const [isReserving, setIsReserving] = useState<number | null>(null)
+  const [showEncouragement, setShowEncouragement] = useState(false)
+  const [currentLoanInfo, setCurrentLoanInfo] = useState<{
+    bookTitle: string
+    bookAuthor: string
+    zone: string | null
+  } | null>(null)
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   // Debounce para la búsqueda (400ms)
@@ -77,15 +84,16 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
         )
       )
 
-      // Intentar reservar
+      // Intentar reservar (la verificación del límite se hace dentro de borrowBook)
       await borrowBook(book.id)
 
       // Éxito
-      toast.success("Libro reservado correctamente")
+      toast.success("¡Libro reservado! Disfruta de la lectura.")
 
-      // Esperar 1 segundo y redirigir
+      // Esperar 1 segundo y redirigir a la home donde se verá el préstamo activo
       setTimeout(() => {
         router.push("/")
+        router.refresh() // Forzar recarga para mostrar el préstamo activo
       }, 1000)
     } catch (err) {
       console.error(err)
@@ -95,8 +103,25 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
           ? err.message
           : "No se ha podido registrar el préstamo"
 
-      // Mostrar error con toast
-      toast.error(message)
+      // Si es el error de límite alcanzado, mostrar el componente bonito
+      if (message.includes("Solo puedes tener 1 libro prestado")) {
+        try {
+          const loanInfo = await getActiveLoanWithBook()
+          if (loanInfo) {
+            setCurrentLoanInfo(loanInfo)
+            setShowEncouragement(true)
+            // Scroll suave hacia arriba para mostrar el componente
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+          } else {
+            toast.error(message)
+          }
+        } catch {
+          toast.error(message)
+        }
+      } else {
+        // Mostrar error con toast para otros errores
+        toast.error(message)
+      }
 
       // Revertir el estado optimista
       setBooks((prev) =>
@@ -111,6 +136,28 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
 
   const hasResults = books.length > 0
   const hasQuery = query.trim().length > 0
+
+  // Si se debe mostrar el componente de animación, mostrarlo primero
+  if (showEncouragement && currentLoanInfo) {
+    return (
+      <div className="flex w-full max-w-4xl flex-col gap-8">
+        <ReadingEncouragement
+          currentBookTitle={currentLoanInfo.bookTitle}
+          currentBookAuthor={currentLoanInfo.bookAuthor}
+          zone={currentLoanInfo.zone}
+        />
+        <div className="mt-8 pt-8 border-t border-slate-200">
+          <Button
+            variant="outline"
+            onClick={() => setShowEncouragement(false)}
+            className="w-full"
+          >
+            Continuar buscando
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex w-full max-w-4xl flex-col gap-8">
