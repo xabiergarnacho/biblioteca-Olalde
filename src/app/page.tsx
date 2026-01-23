@@ -145,8 +145,8 @@ export default async function Home() {
             <Image
               src="/logo-olalde.svg"
               alt="Logotipo Olalde"
-              width={150}
-              height={60}
+              width={240}
+              height={96}
               priority
             />
           </div>

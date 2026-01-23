@@ -58,15 +58,12 @@ export default function LoginPage() {
             <Image
               src="/logo-olalde.svg"
               alt="Logotipo Olalde"
-              width={120}
-              height={80}
-              className="mx-auto mb-4"
+              width={190}
+              height={120}
+              className="mx-auto mb-6"
               priority
             />
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-              Biblioteca Olalde
-            </h1>
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="text-sm text-slate-500">
               Inicia sesión para gestionar tus préstamos
             </p>
           </div>
