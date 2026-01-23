@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Image from "next/image";
 import { ActiveLoanView } from "@/components/ActiveLoanView";
 import { BookSearch } from "@/components/BookSearch";
 import { createClient } from "@/lib/supabase/server";
@@ -137,9 +138,18 @@ export default async function Home() {
     <div className="flex min-h-screen w-full items-center justify-center bg-white px-4 py-16 font-sans">
       <main className="flex w-full max-w-5xl flex-col gap-12">
         <header className="space-y-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-slate-900">
-            Biblioteca Olalde
-          </h1>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-slate-900">
+              Biblioteca
+            </h1>
+            <Image
+              src="/logo-olalde.svg"
+              alt="Logotipo Olalde"
+              width={150}
+              height={60}
+              priority
+            />
+          </div>
           <p className="text-lg text-slate-500 font-normal mt-2">
             Coge un libro, disfrútalo y recuerda devolverlo a su sitio.
           </p>

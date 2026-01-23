@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -54,6 +55,14 @@ export default function LoginPage() {
         <div className="rounded-2xl border border-slate-100 border-t-4 border-t-blue-600 bg-white p-10 shadow-xl">
           {/* Encabezado */}
           <div className="mb-8 text-center">
+            <Image
+              src="/logo-olalde.svg"
+              alt="Logotipo Olalde"
+              width={120}
+              height={80}
+              className="mx-auto mb-4"
+              priority
+            />
             <h1 className="text-3xl font-bold tracking-tight text-slate-900">
               Biblioteca Olalde
             </h1>
