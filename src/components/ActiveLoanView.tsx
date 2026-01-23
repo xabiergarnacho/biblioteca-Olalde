@@ -39,7 +39,6 @@ export function ActiveLoanView({
   }
 
   const resolvedZone = zone ?? "Zona desconocida"
-  const resolvedShelf = shelf ?? "Balda desconocida"
 
   return (
     <Card className="w-full max-w-3xl border-l-4 border-l-orange-400 bg-white shadow-xl">
@@ -56,7 +55,8 @@ export function ActiveLoanView({
         <div className="space-y-2">
           <p className="text-sm font-medium text-slate-500">Ubicación de devolución</p>
           <p className="text-lg text-slate-700">
-            <span className="font-semibold">{resolvedZone}</span> - <span className="font-semibold">{resolvedShelf}</span>
+            <span className="font-semibold">{resolvedZone}</span>
+            {shelf && <span> - <span className="font-semibold">{shelf}</span></span>}
           </p>
         </div>
         <Button

@@ -5,16 +5,22 @@ import { redirect } from "next/navigation"
 
 import { createClient } from "@/lib/supabase/server"
 
-type BookRow = {
-  id: string
-  title: string
-  author: string
-  is_available: boolean
-  zone?: string | null
-  shelf?: string | null
-  location_zone?: string | null
-  location_shelf?: string | null
+export interface Book {
+  id: number
+  titulo: string
+  nombre: string       // Nombre del autor
+  apellido: string     // Apellido del autor
+  genero: string | null
+  tema: string | null
+  recomendado: string | null
+  calificacion: string | null
+  codigo: string       // IMPORTANTE: Es string, no number
+  editorial: string | null
+  disponible: boolean  // true = se puede reservar
+  zona: string | null  // Ej: "Sala de Estar", "Pequeños"
 }
+
+type BookRow = Book
 
 type LoanRow = {
   id: string
@@ -24,7 +30,7 @@ type LoanRow = {
   book?: BookRow
 }
 
-export async function borrowBook(bookId: string) {
+export async function borrowBook(bookId: string | number) {
   const supabase = await createClient()
 
   const {
@@ -37,24 +43,25 @@ export async function borrowBook(bookId: string) {
   }
 
   const userId = session.user.id
+  const bookIdNum = typeof bookId === 'string' ? parseInt(bookId, 10) : bookId
 
   const { data: book, error: bookError } = await supabase
     .from("books")
     .select("*")
-    .eq("id", bookId)
+    .eq("id", bookIdNum)
     .single<BookRow>()
 
   if (bookError || !book) {
     throw new Error("No se ha encontrado el libro seleccionado")
   }
 
-  if (!book.is_available) {
+  if (!book.disponible) {
     throw new Error("Este libro ya está prestado")
   }
 
   const { error: loanError } = await supabase.from("loans").insert({
     user_id: userId,
-    book_id: bookId,
+    book_id: bookIdNum,
   })
 
   if (loanError) {
@@ -63,8 +70,8 @@ export async function borrowBook(bookId: string) {
 
   const { error: updateError } = await supabase
     .from("books")
-    .update({ is_available: false })
-    .eq("id", bookId)
+    .update({ disponible: false })
+    .eq("id", bookIdNum)
 
   if (updateError) {
     throw new Error("No se ha podido actualizar el estado del libro")
@@ -109,7 +116,7 @@ export async function returnBook(loanId: string) {
 
   const { error: updateBookError } = await supabase
     .from("books")
-    .update({ is_available: true })
+    .update({ disponible: true })
     .eq("id", loan.book_id)
 
   if (updateBookError) {
@@ -131,12 +138,29 @@ export async function searchBooks(query: string): Promise<BookRow[]> {
     .from("books")
     .select("*")
     .or(
-      `title.ilike.%${trimmed}%,author.ilike.%${trimmed}%`
+      `titulo.ilike.%${trimmed}%,nombre.ilike.%${trimmed}%,apellido.ilike.%${trimmed}%`
     )
-    .order("title", { ascending: true })
+    .order("titulo", { ascending: true })
 
   if (error) {
     throw new Error("No se ha podido buscar libros")
+  }
+
+  return (data ?? []) as BookRow[]
+}
+
+export async function getInitialBooks(): Promise<BookRow[]> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from("books")
+    .select("*")
+    .order("titulo", { ascending: true })
+    .range(0, 39) // Solo los primeros 40 libros
+
+  if (error) {
+    console.error("Error cargando libros iniciales:", error)
+    return []
   }
 
   return (data ?? []) as BookRow[]

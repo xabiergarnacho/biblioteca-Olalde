@@ -4,21 +4,10 @@ import { useState, useTransition, FormEvent } from "react"
 import { Search, BookOpen } from "lucide-react"
 import { toast } from "sonner"
 
-import { borrowBook, searchBooks } from "@/app/actions"
+import { borrowBook, searchBooks, type Book } from "@/app/actions"
 import { Button } from "./ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Input } from "./ui/input"
-
-type Book = {
-  id: string
-  title: string
-  author: string
-  is_available: boolean
-  zone?: string | null
-  shelf?: string | null
-  location_zone?: string | null
-  location_shelf?: string | null
-}
 
 type BookSearchProps = {
   initialBooks?: Book[]
@@ -52,18 +41,18 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
     })
   }
 
-  const handleBorrow = (bookId: string) => {
+  const handleBorrow = (bookId: number) => {
     setError(null)
-    setIsBorrowingId(bookId)
+    setIsBorrowingId(String(bookId))
 
     // Optimistic: marcamos como no disponible mientras se completa la action
     setBooks((prev) =>
       prev.map((book) =>
-        book.id === bookId ? { ...book, is_available: false } : book
+        book.id === bookId ? { ...book, disponible: false } : book
       )
     )
 
-    void borrowBook(bookId)
+    void borrowBook(String(bookId))
       .then(() => {
         toast.success("¡Disfruta el libro! Tienes 15 días.")
       })
@@ -80,7 +69,7 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
         // Revertimos el estado optimista si ha fallado
         setBooks((prev) =>
           prev.map((book) =>
-            book.id === bookId ? { ...book, is_available: true } : book
+            book.id === bookId ? { ...book, disponible: true } : book
           )
         )
       })
@@ -100,7 +89,7 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
         <div className="relative">
           <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
           <Input
-            placeholder="Busca por título, autor o ISBN..."
+            placeholder="Busca por título, autor o código..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="h-14 w-full rounded-2xl border-slate-200 bg-white py-4 pl-12 pr-4 text-base shadow-2xl shadow-blue-900/10 transition-all duration-200 focus-visible:scale-[1.02] focus-visible:shadow-2xl focus-visible:shadow-blue-900/20"
@@ -138,9 +127,9 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
       {hasResults && (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {books.map((book) => {
-          const zone = book.zone ?? book.location_zone ?? "Zona desconocida"
-          const shelf = book.shelf ?? book.location_shelf ?? "Balda desconocida"
-          const isBorrowing = isBorrowingId === book.id
+          const isBorrowing = isBorrowingId === String(book.id)
+          const autor = `${book.apellido}, ${book.nombre}`
+          const zona = book.zona ?? "General"
 
           // Generar gradiente único basado en el título
           const gradients = [
@@ -151,16 +140,11 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
             "bg-gradient-to-br from-rose-50 to-red-100",
             "bg-gradient-to-br from-violet-50 to-purple-100",
           ]
-          const gradientIndex = book.title.length % gradients.length
+          const gradientIndex = book.titulo.length % gradients.length
           const gradient = gradients[gradientIndex]
           
           // Iniciales del autor o título
-          const initials = book.author
-            .split(" ")
-            .slice(0, 2)
-            .map((n) => n[0])
-            .join("")
-            .toUpperCase() || book.title.slice(0, 2).toUpperCase()
+          const initials = (book.apellido?.[0] || "") + (book.nombre?.[0] || "") || book.titulo.slice(0, 2).toUpperCase()
 
           return (
             <Card
@@ -170,34 +154,36 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
               {/* Placeholder de portada */}
               <div className={`h-32 w-full ${gradient} flex items-center justify-center`}>
                 <span className="text-2xl font-bold text-slate-600/60">
-                  {initials}
+                  {initials.toUpperCase()}
                 </span>
               </div>
               
               <CardHeader className="pb-3">
                 <CardTitle className="line-clamp-2 text-lg font-semibold text-slate-900">
-                  {book.title}
+                  {book.titulo}
                 </CardTitle>
               </CardHeader>
               
               <CardContent className="flex flex-1 flex-col gap-3 pt-0">
                 <p className="text-sm font-medium text-slate-600">
-                  {book.author}
+                  {autor}
                 </p>
-                <p className="text-xs text-slate-500">
-                  <span className="font-medium">{zone}</span> · <span className="font-medium">{shelf}</span>
-                </p>
+                {zona && (
+                  <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600 w-fit">
+                    {zona}
+                  </span>
+                )}
                 <Button
                   type="button"
-                  className="mt-auto w-full"
-                  disabled={!book.is_available || isBorrowing}
+                  className="mt-auto w-full bg-black text-white hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400"
+                  disabled={!book.disponible || isBorrowing}
                   onClick={() => handleBorrow(book.id)}
                 >
-                  {!book.is_available
-                    ? "No disponible"
+                  {!book.disponible
+                    ? "Prestado"
                     : isBorrowing
                       ? "Cogiendo libro..."
-                      : "Coger libro"}
+                      : "Reservar"}
                 </Button>
               </CardContent>
             </Card>

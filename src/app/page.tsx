@@ -3,23 +3,13 @@ import Image from "next/image";
 import { ActiveLoanView } from "@/components/ActiveLoanView";
 import { BookSearch } from "@/components/BookSearch";
 import { createClient } from "@/lib/supabase/server";
-
-type BookRow = {
-  id: string;
-  title: string;
-  author: string;
-  is_available: boolean;
-  zone?: string | null;
-  shelf?: string | null;
-  location_zone?: string | null;
-  location_shelf?: string | null;
-};
+import { getInitialBooks, type Book } from "@/app/actions";
 
 type LoanWithBook = {
   id: string;
   book_id: string;
   returned_at: string | null;
-  book: BookRow | null;
+  book: Book | null;
 };
 
 export default async function Home() {
@@ -72,7 +62,7 @@ export default async function Home() {
   }
 
   let activeLoan: LoanWithBook | null = null;
-  let initialBooks: BookRow[] = [];
+  let initialBooks: Book[] = [];
 
   // Ahora sabemos que hay sesión, consultamos préstamos activos
   try {
@@ -85,11 +75,11 @@ export default async function Home() {
         returned_at,
         book:books (
           id,
-          title,
-          author,
-          is_available,
-          location_zone,
-          location_shelf
+          titulo,
+          nombre,
+          apellido,
+          disponible,
+          zona
         )
       `
       )
@@ -108,31 +98,14 @@ export default async function Home() {
 
   if (!activeLoan) {
     try {
-      const { data, error } = await supabase
-        .from("books")
-        .select("*")
-        .eq("is_available", true)
-        .order("title", { ascending: true })
-        .limit(12);
-
-      if (error) {
-        console.error("Error cargando libros iniciales:", {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
-        });
-      } else if (data) {
-        initialBooks = data as BookRow[];
-      }
+      initialBooks = await getInitialBooks();
     } catch (err) {
       console.error("Excepción al cargar libros iniciales:", err);
     }
   }
 
   const book = activeLoan?.book;
-  const zone = book?.zone ?? book?.location_zone ?? null;
-  const shelf = book?.shelf ?? book?.location_shelf ?? null;
+  const zone = book?.zona ?? null;
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-white px-4 py-16 font-sans">
@@ -159,9 +132,9 @@ export default async function Home() {
         {activeLoan && book ? (
           <ActiveLoanView
             loanId={activeLoan.id}
-            bookTitle={book.title}
+            bookTitle={book.titulo}
             zone={zone}
-            shelf={shelf}
+            shelf={null}
           />
         ) : (
           <BookSearch initialBooks={initialBooks} />
