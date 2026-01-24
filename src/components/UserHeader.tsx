@@ -3,6 +3,7 @@ import { signOut } from "@/app/actions"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { Button } from "./ui/button"
 import { LogOut } from "lucide-react"
+import { ThemeToggle } from "./ThemeToggle"
 
 export default async function UserHeader() {
   // Verificar que las variables de entorno estén configuradas
@@ -47,32 +48,33 @@ export default async function UserHeader() {
     "U"
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-slate-100 dark:border-zinc-700 bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-md">
       <div className="grid w-full max-w-5xl grid-cols-3 items-center px-6 py-4 mx-auto">
         {/* Columna 1: Vacía para equilibrio */}
         <div></div>
 
         {/* Columna 2: Información del usuario centrada (Pill) */}
         <div className="flex justify-center">
-          <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-100/50 backdrop-blur-sm pl-1 pr-4 py-1">
+          <div className="flex items-center gap-2 rounded-full border border-gray-200 dark:border-zinc-700 bg-gray-100/50 dark:bg-zinc-800/50 backdrop-blur-sm pl-1 pr-4 py-1">
             <Avatar className="h-7 w-7">
               {avatarUrl ? (
                 <AvatarImage src={avatarUrl} alt={displayName} />
               ) : null}
               <AvatarFallback className="text-xs">{initials}</AvatarFallback>
             </Avatar>
-            <span className="text-sm font-medium text-slate-700">{displayName}</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-[#F4F4F5]">{displayName}</span>
           </div>
         </div>
 
-        {/* Columna 3: Botón de cerrar sesión */}
-        <div className="flex justify-end">
+        {/* Columna 3: Botón de tema y cerrar sesión */}
+        <div className="flex justify-end items-center gap-2">
+          <ThemeToggle />
           <form action={signOut}>
             <Button
               type="submit"
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 text-slate-400 transition-colors hover:text-red-500"
+              className="h-8 w-8 p-0 text-slate-400 dark:text-zinc-400 transition-colors hover:text-red-500 dark:hover:text-red-400"
             >
               <LogOut className="h-4 w-4" />
               <span className="sr-only">Cerrar sesión</span>

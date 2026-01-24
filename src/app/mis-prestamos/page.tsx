@@ -93,18 +93,18 @@ export default async function MisPrestamosPage() {
   // Si no hay préstamo activo, mostrar mensaje elegante
   if (!activeLoan || !activeLoan.book) {
     return (
-      <div className="flex min-h-screen w-full items-center justify-center bg-[#FDFCF8] px-4 py-16 font-sans">
+      <div className="flex min-h-screen w-full items-center justify-center bg-[#FDFCF8] dark:bg-[#18181B] px-4 py-16 font-sans">
         <main className="flex w-full max-w-2xl flex-col items-center gap-8 text-center">
           <div className="space-y-4">
-            <h1 className="text-4xl font-serif font-normal text-[#1A1A1A] tracking-tight">
+            <h1 className="text-4xl font-serif font-normal text-[#1A1A1A] dark:text-[#F4F4F5] tracking-tight">
               No tienes lecturas activas
             </h1>
-            <p className="text-sm font-sans text-[#1A1A1A]/60 uppercase tracking-widest">
+            <p className="text-sm font-sans text-[#1A1A1A]/60 dark:text-[#F4F4F5]/60 uppercase tracking-widest">
               Explora nuestra colección y encuentra tu próximo libro favorito
             </p>
           </div>
           <Link href="/">
-            <button className="text-sm font-sans text-[#1A1A1A] hover:underline uppercase tracking-widest">
+            <button className="text-sm font-sans text-[#1A1A1A] dark:text-[#F4F4F5] hover:underline uppercase tracking-widest">
               Ir a buscar libros
             </button>
           </Link>
@@ -129,21 +129,21 @@ export default async function MisPrestamosPage() {
   })
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-[#FDFCF8] px-4 py-16 font-sans">
+    <div className="flex min-h-screen w-full items-center justify-center bg-[#FDFCF8] dark:bg-[#18181B] px-4 py-16 font-sans">
       <main className="flex w-full max-w-3xl flex-col gap-8">
         {/* Ticket de Préstamo - Estilo Elegante */}
-        <div className="bg-white border border-[#E5E5E5] relative">
+        <div className="bg-white dark:bg-zinc-800 border border-[#E5E5E5] dark:border-zinc-700 relative">
           {/* Borde discontinuo superior (simula ticket arrancable) */}
-          <div className="absolute top-0 left-0 right-0 h-px border-t-2 border-dashed border-[#E5E5E5]"></div>
+          <div className="absolute top-0 left-0 right-0 h-px border-t-2 border-dashed border-[#E5E5E5] dark:border-zinc-700"></div>
           
           <div className="p-8 md:p-12">
             <div className="flex flex-col md:flex-row gap-8 md:gap-12">
               {/* Izquierda: Título y Autor */}
               <div className="flex-1">
-                <h1 className="text-3xl md:text-4xl font-serif font-normal text-[#1A1A1A] leading-tight mb-4">
+                <h1 className="text-3xl md:text-4xl font-serif font-normal text-[#1A1A1A] dark:text-[#F4F4F5] leading-tight mb-4">
                   {book.titulo}
                 </h1>
-                <p className="text-sm font-sans text-[#1A1A1A]/60 uppercase tracking-widest">
+                <p className="text-sm font-sans text-[#1A1A1A]/60 dark:text-[#F4F4F5]/60 uppercase tracking-widest">
                   {autor}
                 </p>
               </div>
@@ -152,10 +152,10 @@ export default async function MisPrestamosPage() {
               <div className="flex-1 space-y-6">
                 {/* Fecha Límite - Tipografía monoespaciada */}
                 <div>
-                  <p className="text-xs font-sans text-[#1A1A1A]/40 uppercase tracking-widest mb-2">
+                  <p className="text-xs font-sans text-[#1A1A1A]/40 dark:text-[#F4F4F5]/40 uppercase tracking-widest mb-2">
                     Fecha Límite
                   </p>
-                  <p className="text-2xl font-mono text-[#1A1A1A]">
+                  <p className="text-2xl font-mono text-[#1A1A1A] dark:text-[#F4F4F5]">
                     {formattedDate}
                   </p>
                 </div>
@@ -168,10 +168,10 @@ export default async function MisPrestamosPage() {
                     </span>
                   </div>
                   <div>
-                    <p className="text-xs font-sans text-[#1A1A1A]/40 uppercase tracking-widest mb-1">
+                    <p className="text-xs font-sans text-[#1A1A1A]/40 dark:text-[#F4F4F5]/40 uppercase tracking-widest mb-1">
                       Ubicación
                     </p>
-                    <p className="text-base font-sans text-[#1A1A1A]">
+                    <p className="text-base font-sans text-[#1A1A1A] dark:text-[#F4F4F5]">
                       {zona}
                     </p>
                   </div>
@@ -181,7 +181,7 @@ export default async function MisPrestamosPage() {
           </div>
 
           {/* Borde discontinuo inferior */}
-          <div className="absolute bottom-0 left-0 right-0 h-px border-b-2 border-dashed border-[#E5E5E5]"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-px border-b-2 border-dashed border-[#E5E5E5] dark:border-zinc-700"></div>
         </div>
 
         {/* Botón de Devolver - Ancho completo, negro, esquinas rectas */}
@@ -190,7 +190,7 @@ export default async function MisPrestamosPage() {
         {/* Link de volver */}
         <div className="text-center">
           <Link href="/">
-            <button className="text-xs font-sans text-[#1A1A1A]/40 hover:text-[#1A1A1A] uppercase tracking-widest">
+            <button className="text-xs font-sans text-[#1A1A1A]/40 dark:text-[#F4F4F5]/40 hover:text-[#1A1A1A] dark:hover:text-[#F4F4F5] uppercase tracking-widest">
               ← Volver al buscador
             </button>
           </Link>

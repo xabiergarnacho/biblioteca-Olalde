@@ -117,10 +117,10 @@
 
 @layer base {
   * {
-    @apply border-[#E5E5E5];
+    @apply border-[#E5E5E5] dark:border-zinc-700;
   }
   body {
-    @apply bg-[#FDFCF8] text-[#1A1A1A];
+    @apply bg-[#FDFCF8] dark:bg-[#18181B] text-[#1A1A1A] dark:text-[#F4F4F5];
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-playfair), serif;

@@ -51,18 +51,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
+    <div className="relative flex min-h-screen items-center justify-center bg-gray-50 dark:bg-zinc-900 px-4 py-12">
       {/* Fondo con patrón de letras */}
       <LetterPatternBackground />
 
       {/* Contenedor principal */}
       <div className="relative z-10 w-full max-w-md">
-        {/* Tarjeta de Login */}
-        <div className="rounded-2xl border border-gray-100 bg-white p-10 shadow-2xl">
+        {/* Tarjeta de Login - Siempre blanca incluso en modo oscuro */}
+        <div className="rounded-2xl border border-gray-100 bg-white dark:bg-white p-10 shadow-2xl">
           {/* Encabezado */}
           <div className="mb-8 text-center">
             <h1 
-              className="text-4xl font-bold tracking-tight text-slate-900 mb-4"
+              className="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-900 mb-4"
               style={{ fontFamily: 'Times, "Times New Roman", serif' }}
             >
               Biblioteca Olalde
@@ -72,23 +72,23 @@ export default function LoginPage() {
               alt="Logotipo Olalde"
               width={192}
               height={120}
-              className="mx-auto"
+              className="mx-auto dark:invert dark:brightness-0 dark:invert"
               priority
             />
-            <p className="text-lg text-gray-500 font-medium mt-4 mb-8">
+            <p className="text-lg text-gray-500 dark:text-gray-600 font-medium mt-4 mb-8">
               Donde las grandes historias te esperan.
             </p>
           </div>
 
           {/* Separador */}
-          <div className="mb-6 border-t border-slate-100" />
+          <div className="mb-6 border-t border-slate-100 dark:border-slate-200" />
 
           {/* Botón de Google */}
           <button
             type="button"
             onClick={handleGoogleLogin}
             disabled={isLoading}
-            className="flex w-full items-center justify-center gap-3 rounded-lg bg-black px-4 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex w-full items-center justify-center gap-3 rounded-lg bg-black dark:bg-black px-4 py-3 text-sm font-medium text-white dark:text-white transition-all duration-200 hover:bg-gray-800 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <>

@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import { searchBooks, type Book } from "@/app/actions"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "./ui/button"
+import { BookCover } from "./BookCover"
 
 type BookSearchProps = {
   initialBooks?: Book[]
@@ -202,10 +203,10 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
     <div className="flex w-full max-w-6xl flex-col gap-12">
       {/* Hero Section - Minimalista Centrado */}
       <div className="flex flex-col items-center justify-center gap-6 text-center">
-        <h1 className="text-6xl font-serif font-normal text-[#1A1A1A] tracking-tight">
+        <h1 className="text-6xl font-serif font-normal text-[#1A1A1A] dark:text-[#F4F4F5] tracking-tight">
           Biblioteca Olalde
         </h1>
-        <p className="text-xs font-sans uppercase tracking-widest text-[#1A1A1A]/60">
+        <p className="text-xs font-sans uppercase tracking-widest text-[#1A1A1A]/60 dark:text-[#F4F4F5]/60">
           Explora el catálogo
         </p>
       </div>
@@ -218,14 +219,14 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
             placeholder="Buscar..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-transparent border-0 border-b-2 border-[#1A1A1A] pb-3 pr-10 text-[#1A1A1A] placeholder:text-[#1A1A1A]/40 focus:outline-none focus:border-[#1A1A1A] transition-colors"
+            className="w-full bg-transparent border-0 border-b-2 border-[#1A1A1A] dark:border-[#F4F4F5] pb-3 pr-10 text-[#1A1A1A] dark:text-[#F4F4F5] placeholder:text-[#1A1A1A]/40 dark:placeholder:text-[#F4F4F5]/40 focus:outline-none focus:border-[#1A1A1A] dark:focus:border-[#F4F4F5] transition-colors"
             autoFocus
           />
           <div className="absolute right-0 top-1/2 -translate-y-1/2">
             {isSearching ? (
-              <Loader2 className="h-5 w-5 animate-spin text-[#1A1A1A]/40" />
+              <Loader2 className="h-5 w-5 animate-spin text-[#1A1A1A]/40 dark:text-[#F4F4F5]/40" />
             ) : (
-              <Search className="h-5 w-5 text-[#1A1A1A]/40" />
+              <Search className="h-5 w-5 text-[#1A1A1A]/40 dark:text-[#F4F4F5]/40" />
             )}
           </div>
         </div>
@@ -233,7 +234,7 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
 
       {/* Título de sección */}
       {showFeatured && (
-        <h2 className="text-xl font-serif font-normal text-[#1A1A1A] tracking-tight">
+        <h2 className="text-xl font-serif font-normal text-[#1A1A1A] dark:text-[#F4F4F5] tracking-tight">
           Colección Destacada
         </h2>
       )}
@@ -259,50 +260,50 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
             return (
               <div
                 key={book.id}
-                className="group relative bg-white border border-[#E5E5E5] transition-all duration-200 hover:border-[#1A1A1A] hover:-translate-y-1"
+                className="group relative flex flex-col transition-all duration-200 hover:-translate-y-1"
                 style={{
-                  aspectRatio: '2/3',
                   animationDelay: `${index * 0.03}s`,
                 }}
               >
-                <div className="h-full flex flex-col p-6">
-                  {/* Título - Protagonista */}
-                  <h3 className="text-xl font-serif font-normal text-[#1A1A1A] leading-tight mb-auto">
+                {/* Portada Híbrida */}
+                <BookCover book={book} className="mb-4" />
+
+                {/* Información del libro */}
+                <div className="space-y-2">
+                  {/* Título */}
+                  <h3 className="text-lg font-serif font-normal text-[#1A1A1A] dark:text-[#F4F4F5] leading-tight">
                     {book.titulo}
                   </h3>
 
-                  {/* Pie de tarjeta */}
-                  <div className="mt-auto space-y-3">
-                    {/* Autor */}
-                    <p className="text-xs font-sans text-[#1A1A1A]/50 uppercase tracking-wider">
-                      {autor}
-                    </p>
+                  {/* Autor */}
+                  <p className="text-xs font-sans text-[#1A1A1A]/50 dark:text-[#F4F4F5]/50 uppercase tracking-wider">
+                    {autor}
+                  </p>
 
-                    {/* Zona - Esquina minimalista */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono text-[#1A1A1A]/30">
-                        {zonaInitial}
-                      </span>
-                      
-                      {/* Botón Reservar - Minimalista */}
-                      <button
-                        type="button"
-                        onClick={() => handleReserve(book)}
-                        disabled={!book.disponible || isReservingThis}
-                        className="text-xs font-sans text-[#1A1A1A] hover:underline disabled:text-[#1A1A1A]/30 disabled:no-underline disabled:cursor-not-allowed transition-all"
-                      >
-                        {!book.disponible ? (
-                          "Reservado"
-                        ) : isReservingThis ? (
-                          <span className="flex items-center gap-1">
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                            ...
-                          </span>
-                        ) : (
-                          "Reservar"
-                        )}
-                      </button>
-                    </div>
+                  {/* Zona y Botón Reservar */}
+                  <div className="flex items-center justify-between pt-2">
+                    <span className="text-xs font-mono text-[#1A1A1A]/30 dark:text-[#F4F4F5]/30">
+                      {zonaInitial}
+                    </span>
+                    
+                    {/* Botón Reservar - Minimalista */}
+                    <button
+                      type="button"
+                      onClick={() => handleReserve(book)}
+                      disabled={!book.disponible || isReservingThis}
+                      className="text-xs font-sans text-[#1A1A1A] dark:text-[#F4F4F5] hover:underline disabled:text-[#1A1A1A]/30 dark:disabled:text-[#F4F4F5]/30 disabled:no-underline disabled:cursor-not-allowed transition-all"
+                    >
+                      {!book.disponible ? (
+                        "Reservado"
+                      ) : isReservingThis ? (
+                        <span className="flex items-center gap-1">
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                          ...
+                        </span>
+                      ) : (
+                        "Reservar"
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>
