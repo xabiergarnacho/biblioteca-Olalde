@@ -153,6 +153,8 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
 
     try {
       // Paso A: Insertar préstamo con status='active'
+      console.log("Insertando préstamo:", { userId, bookId: book.id, status: "active" })
+      
       const { data: newLoan, error: insertError } = await supabase
         .from("loans")
         .insert({
@@ -160,13 +162,20 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
           book_id: book.id,
           status: "active",
         })
-        .select("id")
+        .select("id, status")
         .single()
 
-      if (insertError || !newLoan) {
+      if (insertError) {
+        console.error("Error insertando préstamo:", insertError)
+        throw new Error(`No se ha podido registrar el préstamo: ${insertError.message}`)
+      }
+
+      if (!newLoan) {
+        console.error("No se devolvió el préstamo insertado")
         throw new Error("No se ha podido registrar el préstamo")
       }
 
+      console.log("Préstamo insertado correctamente:", newLoan)
       loanId = newLoan.id
 
       // Paso B: Actualizar libro (disponible: false)
@@ -192,8 +201,10 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
 
       toast.success("¡Libro reservado! Disfruta de la lectura.")
       
-      // Redirigir inmediatamente usando router.push
-      router.push("/mis-prestamos")
+      // Esperar un momento para asegurar que la inserción se complete
+      // y luego forzar recarga completa
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      window.location.href = "/mis-prestamos"
     } catch (err) {
       console.error(err)
 
