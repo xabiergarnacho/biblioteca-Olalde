@@ -7,7 +7,13 @@
 - ✅ `next.config.ts` - Configuración de next-pwa
 - ✅ `src/app/layout.tsx` - Meta tags SEO y iOS
 
-### 2. Iconos Necesarios
+### 2. Estado Actual de PWA
+
+**✅ App Instalable**: La app ya es instalable con el manifest.json configurado
+**⚠️ Service Worker**: next-pwa está desactivado temporalmente debido a incompatibilidad con Turbopack en Next.js 16
+**✅ Funcionalidad**: La app funciona perfectamente y es instalable sin service worker
+
+### 3. Iconos Necesarios
 
 Para completar la PWA, necesitas crear los siguientes iconos en la carpeta `public/`:
 
@@ -35,7 +41,7 @@ convert logo-olalde.svg -resize 192x192 icon-192.png
 convert logo-olalde.svg -resize 512x512 icon-512.png
 ```
 
-### 3. Variable de Entorno (Opcional)
+### 4. Variable de Entorno (Opcional)
 
 Si quieres que los metadatos OpenGraph usen tu URL real, crea/actualiza `.env.local`:
 
@@ -43,7 +49,7 @@ Si quieres que los metadatos OpenGraph usen tu URL real, crea/actualiza `.env.lo
 NEXT_PUBLIC_SITE_URL=https://tu-dominio.com
 ```
 
-### 4. Probar la PWA
+### 5. Probar la PWA
 
 #### En Desarrollo:
 ```bash
@@ -62,22 +68,24 @@ npm start
 - Lighthouse → PWA audit
 - https://www.pwabuilder.com/
 
-### 5. Características PWA Implementadas
+### 6. Características PWA Implementadas
 
-✅ **Instalable**: La app se puede instalar en móviles y escritorio
-✅ **Offline**: next-pwa configura service worker automáticamente
+✅ **Instalable**: La app se puede instalar en móviles y escritorio (con manifest.json)
 ✅ **Standalone**: Se abre sin barra del navegador en móviles
 ✅ **SEO Optimizado**: Meta tags completos para compartir
 ✅ **iOS Ready**: Meta tags específicos para Safari iOS
+⚠️ **Offline**: Service worker desactivado temporalmente (next-pwa incompatible con Turbopack)
 
-### 6. Notas Importantes
+### 7. Notas Importantes
 
-- **next-pwa está desactivado en desarrollo** para evitar problemas
+- **next-pwa está desactivado** debido a incompatibilidad con Turbopack en Next.js 16
+- La app **SÍ es instalable** sin service worker (solo necesita manifest.json)
 - Los iconos son **obligatorios** para que la PWA funcione correctamente
 - El manifest.json ya está configurado y listo
 - Los meta tags de iOS están en el `<head>` del layout
+- Para funcionalidad offline, se puede implementar un service worker manual más adelante
 
-### 7. Próximos Pasos
+### 8. Próximos Pasos
 
 1. Genera los iconos (icon-192.png, icon-512.png)
 2. Crea og-image.png para compartir en redes sociales

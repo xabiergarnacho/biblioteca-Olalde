@@ -16,6 +16,8 @@ type LoanWithBook = {
   } | null
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function MisPrestamosPage() {
   // Verificar que las variables de entorno estén configuradas
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
