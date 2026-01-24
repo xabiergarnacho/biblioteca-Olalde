@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from "react"
-import { BookOpen } from "lucide-react"
 import type { Book } from "@/app/actions"
 
 type BookCoverProps = {
@@ -9,21 +8,29 @@ type BookCoverProps = {
   className?: string
 }
 
+// Función para generar color de fallback basado en el título
+function getFallbackColor(titulo: string): string {
+  // Colores suaves aleatorios basados en el hash del título
+  const colors = [
+    'bg-stone-200 dark:bg-stone-700',
+    'bg-amber-100 dark:bg-amber-900/30',
+    'bg-blue-100 dark:bg-blue-900/30',
+    'bg-slate-200 dark:bg-slate-700',
+    'bg-zinc-200 dark:bg-zinc-700',
+    'bg-neutral-200 dark:bg-neutral-700',
+  ]
+  
+  // Generar índice basado en el título
+  const hash = titulo.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+  return colors[hash % colors.length]
+}
+
 export function BookCover({ book, className = "" }: BookCoverProps) {
   const [imageError, setImageError] = useState(false)
   const [imageLoading, setImageLoading] = useState(true)
 
-  // Construir URL de OpenLibrary basada en el título
-  // OpenLibrary usa el título normalizado (sin espacios especiales, en minúsculas)
-  const normalizeTitle = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, '')
-      .replace(/\s+/g, '_')
-      .substring(0, 50) // Limitar longitud
-  }
-
-  const openLibraryUrl = `https://covers.openlibrary.org/b/title/${normalizeTitle(book.titulo)}-M.jpg`
+  // Construir URL de OpenLibrary usando encodeURIComponent
+  const openLibraryUrl = `https://covers.openlibrary.org/b/title/${encodeURIComponent(book.titulo)}-L.jpg?default=false`
 
   const handleImageError = () => {
     setImageError(true)
@@ -32,19 +39,22 @@ export function BookCover({ book, className = "" }: BookCoverProps) {
 
   const handleImageLoad = () => {
     setImageLoading(false)
+    setImageError(false)
   }
 
-  // Si hay error o no se está cargando, mostrar diseño editorial
-  if (imageError || (!imageLoading && imageError)) {
+  const fallbackColor = getFallbackColor(book.titulo)
+
+  // Si hay error, mostrar fallback con color y título
+  if (imageError) {
     return (
       <div
-        className={`bg-white dark:bg-zinc-800 border border-[#E5E5E5] dark:border-zinc-700 flex items-center justify-center ${className}`}
+        className={`${fallbackColor} border border-[#E5E5E5] dark:border-zinc-800 rounded-sm shadow-sm flex items-center justify-center ${className}`}
         style={{ aspectRatio: '2/3' }}
       >
-        <div className="p-6 text-center">
-          <h3 className="text-lg font-serif font-normal text-[#1A1A1A] dark:text-[#F4F4F5] leading-tight">
-            {book.titulo.length > 50 
-              ? `${book.titulo.substring(0, 50)}...` 
+        <div className="p-4 text-center">
+          <h3 className="text-base md:text-lg font-serif font-normal text-[#1A1A1A] dark:text-[#E4E4E7] leading-tight px-2">
+            {book.titulo.length > 60 
+              ? `${book.titulo.substring(0, 60)}...` 
               : book.titulo}
           </h3>
         </div>
@@ -55,7 +65,7 @@ export function BookCover({ book, className = "" }: BookCoverProps) {
   // Intentar cargar imagen real
   return (
     <div
-      className={`relative bg-white dark:bg-zinc-800 border border-[#E5E5E5] dark:border-zinc-700 overflow-hidden ${className}`}
+      className={`relative bg-white dark:bg-zinc-800 border border-[#E5E5E5] dark:border-zinc-800 rounded-sm shadow-sm overflow-hidden ${className}`}
       style={{ aspectRatio: '2/3' }}
     >
       {/* Imagen real con fade-in */}
@@ -69,14 +79,13 @@ export function BookCover({ book, className = "" }: BookCoverProps) {
         }`}
       />
 
-      {/* Estado de carga - Diseño editorial mientras carga */}
+      {/* Estado de carga - Fallback mientras carga */}
       {imageLoading && (
-        <div className="absolute inset-0 bg-white dark:bg-zinc-800 flex items-center justify-center">
-          <div className="p-6 text-center">
-            <BookOpen className="h-8 w-8 text-[#E5E5E5] dark:text-zinc-600 mx-auto mb-2" />
-            <h3 className="text-sm font-serif font-normal text-[#1A1A1A]/40 dark:text-[#F4F4F5]/40 leading-tight">
-              {book.titulo.length > 40 
-                ? `${book.titulo.substring(0, 40)}...` 
+        <div className={`absolute inset-0 ${fallbackColor} flex items-center justify-center`}>
+          <div className="p-4 text-center">
+            <h3 className="text-sm font-serif font-normal text-[#1A1A1A]/60 dark:text-[#E4E4E7]/60 leading-tight px-2">
+              {book.titulo.length > 50 
+                ? `${book.titulo.substring(0, 50)}...` 
                 : book.titulo}
             </h3>
           </div>

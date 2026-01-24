@@ -110,7 +110,7 @@ export default async function Home() {
   const zone = book?.zona ?? null;
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-[#FDFCF8] px-4 py-16 font-sans">
+    <div className="flex min-h-screen w-full items-center justify-center bg-[#FDFCF8] dark:bg-[#121212] px-4 py-16 font-sans">
       <main className="flex w-full max-w-6xl flex-col gap-12">
 
         {activeLoan && book ? (

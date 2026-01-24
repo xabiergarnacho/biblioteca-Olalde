@@ -86,13 +86,13 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Biblioteca Olalde" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        {/* Iconos generados dinámicamente por Next.js desde icon.tsx y apple-icon.tsx */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="application-name" content="Biblioteca Olalde" />
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body
-        className={`${inter.variable} ${playfair.variable} font-sans antialiased bg-[#FDFCF8] dark:bg-[#18181B] text-[#1A1A1A] dark:text-[#F4F4F5]`}
+        className={`${inter.variable} ${playfair.variable} font-sans antialiased min-h-screen bg-[#FDFCF8] text-[#1A1A1A] dark:bg-[#121212] dark:text-[#E4E4E7] transition-colors duration-300`}
       >
         <ThemeProvider>
           <Toaster />

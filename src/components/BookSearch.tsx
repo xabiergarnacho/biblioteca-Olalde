@@ -269,20 +269,20 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
                 <BookCover book={book} className="mb-4" />
 
                 {/* Información del libro */}
-                <div className="space-y-2">
+                <div className="space-y-2 bg-white dark:bg-[#1E1E1E] border border-[#E5E5E5] dark:border-zinc-800 rounded-sm p-4">
                   {/* Título */}
-                  <h3 className="text-lg font-serif font-normal text-[#1A1A1A] dark:text-[#F4F4F5] leading-tight">
+                  <h3 className="text-lg font-serif font-normal text-[#1A1A1A] dark:text-[#E4E4E7] leading-tight">
                     {book.titulo}
                   </h3>
 
                   {/* Autor */}
-                  <p className="text-xs font-sans text-[#1A1A1A]/50 dark:text-[#F4F4F5]/50 uppercase tracking-wider">
+                  <p className="text-xs font-sans text-[#1A1A1A]/50 dark:text-[#E4E4E7]/50 uppercase tracking-wider">
                     {autor}
                   </p>
 
                   {/* Zona y Botón Reservar */}
                   <div className="flex items-center justify-between pt-2">
-                    <span className="text-xs font-mono text-[#1A1A1A]/30 dark:text-[#F4F4F5]/30">
+                    <span className="text-xs font-mono text-[#1A1A1A]/30 dark:text-[#E4E4E7]/30">
                       {zonaInitial}
                     </span>
                     
@@ -291,7 +291,7 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
                       type="button"
                       onClick={() => handleReserve(book)}
                       disabled={!book.disponible || isReservingThis}
-                      className="text-xs font-sans text-[#1A1A1A] dark:text-[#F4F4F5] hover:underline disabled:text-[#1A1A1A]/30 dark:disabled:text-[#F4F4F5]/30 disabled:no-underline disabled:cursor-not-allowed transition-all"
+                      className="text-xs font-sans text-[#1A1A1A] dark:text-[#E4E4E7] hover:underline disabled:text-[#1A1A1A]/30 dark:disabled:text-[#E4E4E7]/30 disabled:no-underline disabled:cursor-not-allowed transition-all"
                     >
                       {!book.disponible ? (
                         "Reservado"
