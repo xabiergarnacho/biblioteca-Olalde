@@ -103,18 +103,20 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
 
     const supabase = createClient()
 
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession()
+    // Usar getUser() en lugar de getSession() para mayor seguridad
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (sessionError || !session) {
-      toast.error("No se ha podido obtener la sesión del usuario")
+    if (authError || !user) {
+      console.error("Error de autenticación:", authError)
+      toast.error("Sesión no válida. Por favor, inicia sesión de nuevo.")
       setIsReserving(null)
+      setTimeout(() => {
+        window.location.href = "/login"
+      }, 1000)
       return
     }
 
-    const userId = session.user.id
+    const userId = user.id
 
     // 1. Debugging (Imprimir en consola para ver qué pasa)
     console.log("Verificando préstamos para usuario:", userId)
@@ -190,10 +192,10 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
 
       toast.success("¡Libro reservado! Disfruta de la lectura.")
       
-      // Redirigir después de un breve delay
+      // Redirigir inmediatamente usando window.location para forzar la navegación
       setTimeout(() => {
-        router.push("/mis-prestamos")
-      }, 1000)
+        window.location.href = "/mis-prestamos"
+      }, 800)
     } catch (err) {
       console.error(err)
 
