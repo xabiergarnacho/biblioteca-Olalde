@@ -218,12 +218,22 @@ export async function searchBooks(query: string): Promise<BookRow[]> {
   const words = trimmed.split(/\s+/).filter(Boolean)
   
   // Construir query OR para cada palabra en cada campo
+  // También buscamos el texto completo para mayor flexibilidad
   const orConditions: string[] = []
   
+  // Búsqueda del texto completo
+  orConditions.push(`titulo.ilike.%${trimmed}%`)
+  orConditions.push(`nombre.ilike.%${trimmed}%`)
+  orConditions.push(`apellido.ilike.%${trimmed}%`)
+  orConditions.push(`codigo.ilike.%${trimmed}%`)
+  
+  // Búsqueda por palabras individuales (más flexible)
   words.forEach((word) => {
-    orConditions.push(`titulo.ilike.%${word}%`)
-    orConditions.push(`nombre.ilike.%${word}%`)
-    orConditions.push(`apellido.ilike.%${word}%`)
+    if (word.length >= 2) { // Solo palabras de 2+ caracteres
+      orConditions.push(`titulo.ilike.%${word}%`)
+      orConditions.push(`nombre.ilike.%${word}%`)
+      orConditions.push(`apellido.ilike.%${word}%`)
+    }
   })
 
   const { data, error } = await supabase

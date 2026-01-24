@@ -21,7 +21,7 @@ export function LetterPatternBackground() {
         {lettersArray.map((item, index) => (
           <span
             key={index}
-            className="absolute text-gray-300 opacity-20 select-none"
+            className="absolute text-gray-400 opacity-30 select-none"
             style={{
               fontFamily: 'Times, "Times New Roman", serif',
               fontSize: `${item.size}rem`,
