@@ -26,7 +26,7 @@ type LoanRow = {
   id: string
   user_id: string
   book_id: string
-  returned_at: string | null
+  status: string
   book?: BookRow
 }
 
@@ -184,12 +184,9 @@ export async function returnBook(loanId: string) {
     throw new Error("No se ha encontrado el préstamo activo")
   }
 
-  const now = new Date().toISOString()
-
   const { error: updateLoanError } = await supabase
     .from("loans")
     .update({ 
-      returned_at: now,
       status: "returned",
     })
     .eq("id", loanId)

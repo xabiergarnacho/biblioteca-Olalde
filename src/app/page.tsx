@@ -8,7 +8,7 @@ import { getInitialBooks, type Book } from "@/app/actions";
 type LoanWithBook = {
   id: string;
   book_id: string;
-  returned_at: string | null;
+  status: string;
   book: Book | null;
 };
 
@@ -72,7 +72,7 @@ export default async function Home() {
         `
         id,
         book_id,
-        returned_at,
+        status,
         book:books (
           id,
           titulo,

@@ -9,8 +9,6 @@ import { ReturnBookButton } from "@/components/ReturnBookButton"
 type LoanWithBook = {
   id: string
   book_id: string
-  created_at: string
-  returned_at: string | null
   book: {
     id: number
     titulo: string
@@ -64,8 +62,6 @@ export default async function MisPrestamosPage() {
         `
         id,
         book_id,
-        created_at,
-        returned_at,
         status,
         book:books (
           id,
@@ -124,23 +120,10 @@ export default async function MisPrestamosPage() {
   const autor = `${book.apellido}, ${book.nombre}`
   const zona = book.zona ?? "General"
 
-  // Calcular días restantes (15 días desde created_at)
-  const loanDate = new Date(activeLoan.created_at)
-  const returnDate = new Date(loanDate)
-  returnDate.setDate(returnDate.getDate() + 15)
-  const today = new Date()
-  const daysRemaining = Math.max(
-    0,
-    Math.ceil((returnDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-  )
-
-  // Color del texto según días restantes
-  const daysColorClass =
-    daysRemaining < 3
-      ? "text-red-600"
-      : daysRemaining < 7
-      ? "text-orange-600"
-      : "text-slate-900"
+  // Como no tenemos created_at, mostramos un mensaje genérico
+  // El préstamo tiene 15 días de duración estándar
+  const daysRemaining = 15 // Valor por defecto
+  const daysColorClass = "text-slate-900"
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-white px-4 py-16 font-sans">
@@ -195,13 +178,13 @@ export default async function MisPrestamosPage() {
                   </div>
                 </div>
 
-                {/* Cuenta atrás - Con color según días restantes */}
+                {/* Información de préstamo */}
                 <div className="flex items-center gap-3">
                   <Calendar className="h-5 w-5 text-stone-500" />
                   <div>
-                    <p className="text-sm text-stone-500">Tiempo restante</p>
+                    <p className="text-sm text-stone-500">Duración del préstamo</p>
                     <p className={`text-xl font-bold ${daysColorClass}`}>
-                      Te quedan {daysRemaining} {daysRemaining === 1 ? "día" : "días"} para devolverlo
+                      Tienes 15 días para disfrutar este libro
                     </p>
                   </div>
                 </div>
