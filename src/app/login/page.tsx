@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { LetterPatternBackground } from "@/components/LetterPatternBackground";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -50,11 +51,22 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="rounded-2xl border border-slate-100 border-t-4 border-t-blue-600 bg-white p-10 shadow-xl">
+    <div className="relative flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
+      {/* Fondo con patrón de letras */}
+      <LetterPatternBackground />
+
+      {/* Contenedor principal */}
+      <div className="relative z-10 w-full max-w-md">
+        {/* Tarjeta de Login */}
+        <div className="rounded-2xl border border-gray-100 bg-white p-10 shadow-2xl">
           {/* Encabezado */}
           <div className="mb-8 text-center">
+            <h1 
+              className="text-4xl font-bold tracking-tight text-slate-900 mb-4"
+              style={{ fontFamily: 'Times, "Times New Roman", serif' }}
+            >
+              Biblioteca Olalde
+            </h1>
             <Image
               src="/logo-olalde.svg"
               alt="Logotipo Olalde"
@@ -76,11 +88,11 @@ export default function LoginPage() {
             type="button"
             onClick={handleGoogleLogin}
             disabled={isLoading}
-            className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex w-full items-center justify-center gap-3 rounded-lg bg-black px-4 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <>
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 <span>Cargando...</span>
               </>
             ) : (

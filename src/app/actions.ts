@@ -214,13 +214,24 @@ export async function searchBooks(query: string): Promise<BookRow[]> {
     return []
   }
 
+  // Búsqueda "Fuzzy": Separar palabras y buscar coincidencias parciales
+  const words = trimmed.split(/\s+/).filter(Boolean)
+  
+  // Construir query OR para cada palabra en cada campo
+  const orConditions: string[] = []
+  
+  words.forEach((word) => {
+    orConditions.push(`titulo.ilike.%${word}%`)
+    orConditions.push(`nombre.ilike.%${word}%`)
+    orConditions.push(`apellido.ilike.%${word}%`)
+  })
+
   const { data, error } = await supabase
     .from("books")
     .select("*")
-    .or(
-      `titulo.ilike.%${trimmed}%,nombre.ilike.%${trimmed}%,apellido.ilike.%${trimmed}%`
-    )
+    .or(orConditions.join(","))
     .order("titulo", { ascending: true })
+    .limit(50) // Limitar resultados para mejor rendimiento
 
   if (error) {
     throw new Error("No se ha podido buscar libros")
