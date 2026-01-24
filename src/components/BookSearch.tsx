@@ -119,20 +119,16 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
     // 1. Debugging (Imprimir en consola para ver qué pasa)
     console.log("Verificando préstamos para usuario:", userId)
 
-    // 2. Consulta EXPLÍCITA (Solo préstamos ACTIVOS)
-    // Intentar primero con status='active', si no funciona usar returned_at is null
-    let query = supabase
+    // 2. Consulta EXPLÍCITA (Solo préstamos ACTIVOS usando status)
+    const { data: activeLoans, error: loanError } = await supabase
       .from("loans")
-      .select("*")
+      .select("id")
       .eq("user_id", userId)
-
-    // Intentar filtrar por status si existe, sino usar returned_at
-    const { data: activeLoans, error: loanError } = await query
-      .is("returned_at", null)
+      .eq("status", "active")
 
     if (loanError) {
       console.error("Error verificando préstamos activos:", loanError)
-      toast.error("Error al verificar tus préstamos")
+      toast.error("Error de conexión. Intenta recargar la página.")
       setIsReserving(null)
       return
     }
@@ -154,12 +150,13 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
     let loanId: string | null = null
 
     try {
-      // Paso A: Insertar préstamo
+      // Paso A: Insertar préstamo con status='active'
       const { data: newLoan, error: insertError } = await supabase
         .from("loans")
         .insert({
           user_id: userId,
           book_id: book.id,
+          status: "active",
         })
         .select("id")
         .single()

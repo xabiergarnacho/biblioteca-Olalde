@@ -79,7 +79,7 @@ export default async function MisPrestamosPage() {
       `
       )
       .eq("user_id", session.user.id)
-      .is("returned_at", null)
+      .eq("status", "active")
       .maybeSingle<LoanWithBook>()
 
     if (error) {

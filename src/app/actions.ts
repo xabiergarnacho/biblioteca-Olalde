@@ -48,7 +48,7 @@ export async function getActiveLoansCount(): Promise<number> {
     .from("loans")
     .select("*", { count: "exact", head: true })
     .eq("user_id", userId)
-    .is("returned_at", null)
+    .eq("status", "active")
 
   if (error) {
     console.error("Error contando préstamos activos:", error)
@@ -89,7 +89,7 @@ export async function getActiveLoanWithBook(): Promise<{
     `
     )
     .eq("user_id", userId)
-    .is("returned_at", null)
+    .eq("status", "active")
     .maybeSingle<{ book: BookRow | null }>()
 
   if (error || !data || !data.book) {
@@ -142,6 +142,7 @@ export async function borrowBook(bookId: string | number) {
   const { error: loanError } = await supabase.from("loans").insert({
     user_id: userId,
     book_id: bookIdNum,
+    status: "active",
   })
 
   if (loanError) {
@@ -176,7 +177,7 @@ export async function returnBook(loanId: string) {
     .from("loans")
     .select("*")
     .eq("id", loanId)
-    .is("returned_at", null)
+    .eq("status", "active")
     .single<LoanRow>()
 
   if (loanError || !loan) {
@@ -187,7 +188,10 @@ export async function returnBook(loanId: string) {
 
   const { error: updateLoanError } = await supabase
     .from("loans")
-    .update({ returned_at: now })
+    .update({ 
+      returned_at: now,
+      status: "returned",
+    })
     .eq("id", loanId)
 
   if (updateLoanError) {
