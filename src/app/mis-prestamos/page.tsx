@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation"
 import { BookOpen, MapPin, Calendar, ArrowLeft } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
-import { returnBook } from "@/app/actions"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 import { ReturnBookButton } from "@/components/ReturnBookButton"
 
@@ -42,22 +41,18 @@ export default async function MisPrestamosPage() {
     redirect("/login")
   }
 
+  // Usar getUser() en lugar de getSession() para mayor seguridad
   const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession()
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
 
-  if (sessionError) {
-    console.error("Error obteniendo sesión:", sessionError)
+  if (authError || !user) {
+    console.error("Error de autenticación:", authError)
     redirect("/login")
   }
 
-  // Protección estricta: si no hay sesión, redirigir a login
-  if (!session) {
-    redirect("/login")
-  }
-
-  // Consultar préstamo activo
+  // Consultar préstamo activo usando status='active'
   let activeLoan: LoanWithBook | null = null
 
   try {
@@ -78,7 +73,7 @@ export default async function MisPrestamosPage() {
         )
       `
       )
-      .eq("user_id", session.user.id)
+      .eq("user_id", user.id)
       .eq("status", "active")
       .maybeSingle<LoanWithBook>()
 
@@ -91,9 +86,28 @@ export default async function MisPrestamosPage() {
     console.error("Excepción al consultar préstamo activo:", err)
   }
 
-  // Si no hay préstamo activo, redirigir a home
+  // Si no hay préstamo activo, mostrar mensaje elegante
   if (!activeLoan || !activeLoan.book) {
-    redirect("/")
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center bg-white px-4 py-16 font-sans">
+        <main className="flex w-full max-w-2xl flex-col items-center gap-8 text-center">
+          <div className="space-y-4">
+            <BookOpen className="mx-auto h-24 w-24 text-stone-300" />
+            <h1 className="text-3xl md:text-4xl font-serif font-semibold text-black tracking-tight">
+              No tienes lecturas activas
+            </h1>
+            <p className="text-lg text-stone-500">
+              Explora nuestra colección y encuentra tu próximo libro favorito
+            </p>
+          </div>
+          <Link href="/">
+            <Button className="bg-black text-white hover:bg-stone-800 rounded-md px-8 py-6 text-base">
+              Ir a buscar libros
+            </Button>
+          </Link>
+        </main>
+      </div>
+    )
   }
 
   const book = activeLoan.book
@@ -110,22 +124,13 @@ export default async function MisPrestamosPage() {
     Math.ceil((returnDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
   )
 
-  // Generar gradiente único basado en el título
-  const gradients = [
-    "bg-gradient-to-br from-blue-50 to-indigo-100",
-    "bg-gradient-to-br from-purple-50 to-pink-100",
-    "bg-gradient-to-br from-amber-50 to-orange-100",
-    "bg-gradient-to-br from-emerald-50 to-teal-100",
-    "bg-gradient-to-br from-rose-50 to-red-100",
-    "bg-gradient-to-br from-violet-50 to-purple-100",
-  ]
-  const gradientIndex = book.titulo.length % gradients.length
-  const gradient = gradients[gradientIndex]
-
-  // Iniciales del autor
-  const initials =
-    (book.apellido?.[0] || "") + (book.nombre?.[0] || "") ||
-    book.titulo.slice(0, 2).toUpperCase()
+  // Color del texto según días restantes
+  const daysColorClass =
+    daysRemaining < 3
+      ? "text-red-600"
+      : daysRemaining < 7
+      ? "text-orange-600"
+      : "text-slate-900"
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-white px-4 py-16 font-sans">
@@ -140,56 +145,53 @@ export default async function MisPrestamosPage() {
 
         {/* Encabezado */}
         <header className="text-center space-y-2">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-4xl md:text-5xl font-serif font-semibold text-black tracking-tight">
             Tu Lectura Actual
           </h1>
-          <p className="text-lg text-slate-500">
-            Disfruta de tu libro y recuerda devolverlo a tiempo
-          </p>
         </header>
 
-        {/* Tarjeta principal del libro */}
-        <Card className="w-full border-2 border-slate-200 bg-white shadow-lg">
+        {/* Tarjeta principal del libro - Diseño Editorial */}
+        <Card className="w-full border border-stone-200 bg-white shadow-sm">
           <CardContent className="p-8">
             <div className="flex flex-col md:flex-row gap-8">
-              {/* Portada/Icono */}
+              {/* Portada Editorial - Gris con icono */}
               <div className="flex-shrink-0">
-                <div
-                  className={`h-48 w-32 md:h-64 md:w-40 ${gradient} rounded-lg flex items-center justify-center shadow-md`}
-                >
-                  <BookOpen className="h-16 w-16 md:h-20 md:w-20 text-slate-600/60" />
+                <div className="h-48 w-32 md:h-64 md:w-40 bg-stone-50 rounded border border-stone-100 flex items-center justify-center">
+                  <BookOpen className="h-16 w-16 md:h-20 md:w-20 text-stone-400" />
                 </div>
               </div>
 
               {/* Información del libro */}
               <div className="flex-1 space-y-6">
                 <div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
+                  <h2 className="text-2xl md:text-3xl font-serif font-semibold text-black mb-2 leading-tight">
                     {book.titulo}
                   </h2>
-                  <p className="text-lg text-slate-600 font-medium">{autor}</p>
+                  <p className="text-sm text-stone-500 uppercase tracking-wider font-sans">
+                    {autor}
+                  </p>
                 </div>
 
-                {/* Ubicación destacada */}
-                <div className="rounded-lg border-2 border-blue-200 bg-blue-50/50 p-4">
+                {/* Ubicación destacada - Recuadro grande y visible */}
+                <div className="rounded-lg border-2 border-blue-200 bg-blue-50/50 p-6">
                   <div className="flex items-start gap-3">
-                    <MapPin className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <MapPin className="h-6 w-6 text-blue-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-sm font-semibold text-blue-900 mb-1">
-                        Recógelo y devuélvelo en:
+                      <p className="text-sm font-semibold text-blue-900 mb-2 uppercase tracking-wide">
+                        Recógelo en:
                       </p>
-                      <p className="text-lg font-bold text-blue-700">{zona}</p>
+                      <p className="text-2xl font-bold text-blue-700">{zona}</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Tiempo restante */}
+                {/* Cuenta atrás - Con color según días restantes */}
                 <div className="flex items-center gap-3">
-                  <Calendar className="h-5 w-5 text-slate-500" />
+                  <Calendar className="h-5 w-5 text-stone-500" />
                   <div>
-                    <p className="text-sm text-slate-500">Tiempo restante</p>
-                    <p className="text-xl font-bold text-slate-900">
-                      Te quedan {daysRemaining} {daysRemaining === 1 ? "día" : "días"}
+                    <p className="text-sm text-stone-500">Tiempo restante</p>
+                    <p className={`text-xl font-bold ${daysColorClass}`}>
+                      Te quedan {daysRemaining} {daysRemaining === 1 ? "día" : "días"} para devolverlo
                     </p>
                   </div>
                 </div>
@@ -198,7 +200,7 @@ export default async function MisPrestamosPage() {
           </CardContent>
         </Card>
 
-        {/* Botón de devolver */}
+        {/* Botón de devolver - Grande y visible */}
         <div className="flex justify-center">
           <ReturnBookButton loanId={activeLoan.id} />
         </div>

@@ -18,13 +18,10 @@ export function ReturnBookButton({ loanId }: ReturnBookButtonProps) {
     startTransition(async () => {
       try {
         await returnBook(loanId)
-        toast.success("Libro devuelto. ¡Gracias!")
+        toast.success("Libro devuelto correctamente")
         
-        // Redirigir al buscador después de un breve delay
-        setTimeout(() => {
-          router.push("/")
-          router.refresh()
-        }, 1000)
+        // Redirigir al buscador inmediatamente
+        router.push("/")
       } catch (err) {
         console.error(err)
         const message =

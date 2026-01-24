@@ -192,10 +192,8 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
 
       toast.success("¡Libro reservado! Disfruta de la lectura.")
       
-      // Redirigir inmediatamente usando window.location para forzar la navegación
-      setTimeout(() => {
-        window.location.href = "/mis-prestamos"
-      }, 800)
+      // Redirigir inmediatamente usando router.push
+      router.push("/mis-prestamos")
     } catch (err) {
       console.error(err)
 
