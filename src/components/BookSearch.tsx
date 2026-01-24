@@ -2,7 +2,7 @@
 
 import { useState, useTransition, FormEvent, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { Search, Book, Loader2, BookOpen } from "lucide-react"
+import { Search, Book as BookIcon, Loader2, BookOpen } from "lucide-react"
 import { toast } from "sonner"
 
 import { searchBooks, type Book } from "@/app/actions"
@@ -274,7 +274,7 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
               >
                 {/* Portada Editorial - Gris con icono */}
                 <div className="relative h-28 w-20 flex-shrink-0 bg-stone-50 rounded border border-stone-100 flex items-center justify-center">
-                  <Book className="h-8 w-8 text-stone-400" />
+                  <BookIcon className="h-8 w-8 text-stone-400" />
                 </div>
 
                 {/* Contenido */}
