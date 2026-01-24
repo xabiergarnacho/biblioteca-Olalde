@@ -34,14 +34,13 @@ export function ReturnBookButton({ loanId }: ReturnBookButtonProps) {
   }
 
   return (
-    <Button
+    <button
       type="button"
-      size="lg"
       onClick={handleReturn}
       disabled={isPending}
-      className="bg-orange-500 text-white hover:bg-orange-600 px-8 py-6 text-lg font-semibold disabled:opacity-50"
+      className="w-full bg-[#1A1A1A] text-white py-4 text-sm font-sans uppercase tracking-widest hover:bg-[#1A1A1A]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-sm"
     >
-      {isPending ? "Registrando devolución..." : "Devolver Libro"}
-    </Button>
+      {isPending ? "Registrando devolución..." : "Confirmar Devolución"}
+    </button>
   )
 }

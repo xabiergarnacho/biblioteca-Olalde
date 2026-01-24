@@ -1,14 +1,12 @@
 import { redirect } from "next/navigation"
-import { BookOpen, MapPin, Calendar, ArrowLeft } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import Link from "next/link"
 import { ReturnBookButton } from "@/components/ReturnBookButton"
+import Link from "next/link"
 
 type LoanWithBook = {
   id: string
   book_id: string
+  status: string
   book: {
     id: number
     titulo: string
@@ -95,21 +93,20 @@ export default async function MisPrestamosPage() {
   // Si no hay préstamo activo, mostrar mensaje elegante
   if (!activeLoan || !activeLoan.book) {
     return (
-      <div className="flex min-h-screen w-full items-center justify-center bg-white px-4 py-16 font-sans">
+      <div className="flex min-h-screen w-full items-center justify-center bg-[#FDFCF8] px-4 py-16 font-sans">
         <main className="flex w-full max-w-2xl flex-col items-center gap-8 text-center">
           <div className="space-y-4">
-            <BookOpen className="mx-auto h-24 w-24 text-stone-300" />
-            <h1 className="text-3xl md:text-4xl font-serif font-semibold text-black tracking-tight">
+            <h1 className="text-4xl font-serif font-normal text-[#1A1A1A] tracking-tight">
               No tienes lecturas activas
             </h1>
-            <p className="text-lg text-stone-500">
+            <p className="text-sm font-sans text-[#1A1A1A]/60 uppercase tracking-widest">
               Explora nuestra colección y encuentra tu próximo libro favorito
             </p>
           </div>
           <Link href="/">
-            <Button className="bg-black text-white hover:bg-stone-800 rounded-md px-8 py-6 text-base">
+            <button className="text-sm font-sans text-[#1A1A1A] hover:underline uppercase tracking-widest">
               Ir a buscar libros
-            </Button>
+            </button>
           </Link>
         </main>
       </div>
@@ -119,83 +116,84 @@ export default async function MisPrestamosPage() {
   const book = activeLoan.book
   const autor = `${book.apellido}, ${book.nombre}`
   const zona = book.zona ?? "General"
+  const zonaInitial = zona.charAt(0).toUpperCase()
 
-  // Como no tenemos created_at, mostramos un mensaje genérico
-  // El préstamo tiene 15 días de duración estándar
-  const daysRemaining = 15 // Valor por defecto
-  const daysColorClass = "text-slate-900"
+  // Fecha límite (15 días desde hoy)
+  const today = new Date()
+  const returnDate = new Date(today)
+  returnDate.setDate(returnDate.getDate() + 15)
+  const formattedDate = returnDate.toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-white px-4 py-16 font-sans">
-      <main className="flex w-full max-w-4xl flex-col gap-8">
-        {/* Botón de volver */}
-        <Link href="/">
-          <Button variant="ghost" className="mb-4 -ml-4">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver al buscador
-          </Button>
-        </Link>
-
-        {/* Encabezado */}
-        <header className="text-center space-y-2">
-          <h1 className="text-4xl md:text-5xl font-serif font-semibold text-black tracking-tight">
-            Tu Lectura Actual
-          </h1>
-        </header>
-
-        {/* Tarjeta principal del libro - Diseño Editorial */}
-        <Card className="w-full border border-stone-200 bg-white shadow-sm">
-          <CardContent className="p-8">
-            <div className="flex flex-col md:flex-row gap-8">
-              {/* Portada Editorial - Gris con icono */}
-              <div className="flex-shrink-0">
-                <div className="h-48 w-32 md:h-64 md:w-40 bg-stone-50 rounded border border-stone-100 flex items-center justify-center">
-                  <BookOpen className="h-16 w-16 md:h-20 md:w-20 text-stone-400" />
-                </div>
+    <div className="flex min-h-screen w-full items-center justify-center bg-[#FDFCF8] px-4 py-16 font-sans">
+      <main className="flex w-full max-w-3xl flex-col gap-8">
+        {/* Ticket de Préstamo - Estilo Elegante */}
+        <div className="bg-white border border-[#E5E5E5] relative">
+          {/* Borde discontinuo superior (simula ticket arrancable) */}
+          <div className="absolute top-0 left-0 right-0 h-px border-t-2 border-dashed border-[#E5E5E5]"></div>
+          
+          <div className="p-8 md:p-12">
+            <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+              {/* Izquierda: Título y Autor */}
+              <div className="flex-1">
+                <h1 className="text-3xl md:text-4xl font-serif font-normal text-[#1A1A1A] leading-tight mb-4">
+                  {book.titulo}
+                </h1>
+                <p className="text-sm font-sans text-[#1A1A1A]/60 uppercase tracking-widest">
+                  {autor}
+                </p>
               </div>
 
-              {/* Información del libro */}
+              {/* Derecha: Información estructurada */}
               <div className="flex-1 space-y-6">
+                {/* Fecha Límite - Tipografía monoespaciada */}
                 <div>
-                  <h2 className="text-2xl md:text-3xl font-serif font-semibold text-black mb-2 leading-tight">
-                    {book.titulo}
-                  </h2>
-                  <p className="text-sm text-stone-500 uppercase tracking-wider font-sans">
-                    {autor}
+                  <p className="text-xs font-sans text-[#1A1A1A]/40 uppercase tracking-widest mb-2">
+                    Fecha Límite
+                  </p>
+                  <p className="text-2xl font-mono text-[#1A1A1A]">
+                    {formattedDate}
                   </p>
                 </div>
 
-                {/* Ubicación destacada - Recuadro grande y visible */}
-                <div className="rounded-lg border-2 border-blue-200 bg-blue-50/50 p-6">
-                  <div className="flex items-start gap-3">
-                    <MapPin className="h-6 w-6 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-sm font-semibold text-blue-900 mb-2 uppercase tracking-wide">
-                        Recógelo en:
-                      </p>
-                      <p className="text-2xl font-bold text-blue-700">{zona}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Información de préstamo */}
+                {/* Ubicación - Círculo negro con inicial */}
                 <div className="flex items-center gap-3">
-                  <Calendar className="h-5 w-5 text-stone-500" />
+                  <div className="w-12 h-12 rounded-full bg-[#1A1A1A] flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-mono text-lg font-bold">
+                      {zonaInitial}
+                    </span>
+                  </div>
                   <div>
-                    <p className="text-sm text-stone-500">Duración del préstamo</p>
-                    <p className={`text-xl font-bold ${daysColorClass}`}>
-                      Tienes 15 días para disfrutar este libro
+                    <p className="text-xs font-sans text-[#1A1A1A]/40 uppercase tracking-widest mb-1">
+                      Ubicación
+                    </p>
+                    <p className="text-base font-sans text-[#1A1A1A]">
+                      {zona}
                     </p>
                   </div>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* Botón de devolver - Grande y visible */}
-        <div className="flex justify-center">
-          <ReturnBookButton loanId={activeLoan.id} />
+          {/* Borde discontinuo inferior */}
+          <div className="absolute bottom-0 left-0 right-0 h-px border-b-2 border-dashed border-[#E5E5E5]"></div>
+        </div>
+
+        {/* Botón de Devolver - Ancho completo, negro, esquinas rectas */}
+        <ReturnBookButton loanId={activeLoan.id} />
+
+        {/* Link de volver */}
+        <div className="text-center">
+          <Link href="/">
+            <button className="text-xs font-sans text-[#1A1A1A]/40 hover:text-[#1A1A1A] uppercase tracking-widest">
+              ← Volver al buscador
+            </button>
+          </Link>
         </div>
       </main>
     </div>

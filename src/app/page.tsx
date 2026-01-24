@@ -108,26 +108,8 @@ export default async function Home() {
   const zone = book?.zona ?? null;
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-white px-4 py-16 font-sans">
-      <main className="flex w-full max-w-5xl flex-col gap-12">
-        <header className="space-y-4 text-center">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-            <h1 className="text-6xl md:text-7xl font-black tracking-tighter text-black">
-              Biblioteca
-            </h1>
-            <Image
-              src="/logo-olalde.svg"
-              alt="Logotipo Olalde"
-              width={200}
-              height={80}
-              className="mt-2"
-              priority
-            />
-          </div>
-          <p className="text-lg text-slate-500 font-normal mt-2">
-            Coge un libro, disfrútalo y recuerda devolverlo a su sitio.
-          </p>
-        </header>
+    <div className="flex min-h-screen w-full items-center justify-center bg-[#FDFCF8] px-4 py-16 font-sans">
+      <main className="flex w-full max-w-6xl flex-col gap-12">
 
         {activeLoan && book ? (
           <ActiveLoanView

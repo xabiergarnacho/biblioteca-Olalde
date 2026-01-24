@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import UserHeader from "@/components/UserHeader";
@@ -7,6 +7,12 @@ import UserHeader from "@/components/UserHeader";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
   display: "swap",
 });
 
@@ -23,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body
-        className={`${inter.variable} font-sans antialiased`}
+        className={`${inter.variable} ${playfair.variable} font-sans antialiased bg-[#FDFCF8] text-[#1A1A1A]`}
       >
         <Toaster />
         <UserHeader />

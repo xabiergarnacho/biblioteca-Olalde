@@ -2,40 +2,15 @@
 
 import { useState, useTransition, FormEvent, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { Search, Book as BookIcon, Loader2, BookOpen } from "lucide-react"
+import { Search, Loader2, BookOpen } from "lucide-react"
 import { toast } from "sonner"
 
 import { searchBooks, type Book } from "@/app/actions"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "./ui/button"
-import { Input } from "./ui/input"
 
 type BookSearchProps = {
   initialBooks?: Book[]
-}
-
-// Función para obtener el color de la franja según la zona
-function getZoneColor(zona: string | null): string {
-  if (!zona) return "border-l-stone-300"
-  
-  const zonaLower = zona.toLowerCase()
-  
-  const zoneColors: Record<string, string> = {
-    'sala de estar': 'border-l-amber-400',
-    'pequeños': 'border-l-blue-300',
-    'estudio mayores': 'border-l-slate-400',
-    'zona juvenil': 'border-l-purple-300',
-    'primera planta': 'border-l-emerald-300',
-    'general': 'border-l-stone-300',
-  }
-  
-  for (const [key, color] of Object.entries(zoneColors)) {
-    if (zonaLower.includes(key)) {
-      return color
-    }
-  }
-  
-  return "border-l-stone-300"
 }
 
 export function BookSearch({ initialBooks = [] }: BookSearchProps) {
@@ -224,103 +199,111 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
   const showFeatured = !hasSearched && !hasQuery && initialBooks.length > 0
 
   return (
-    <div className="flex w-full max-w-6xl flex-col gap-8">
-      {/* Buscador - Siempre visible en la parte superior */}
-      <form onSubmit={handleSearch} className="w-full">
+    <div className="flex w-full max-w-6xl flex-col gap-12">
+      {/* Hero Section - Minimalista Centrado */}
+      <div className="flex flex-col items-center justify-center gap-6 text-center">
+        <h1 className="text-6xl font-serif font-normal text-[#1A1A1A] tracking-tight">
+          Biblioteca Olalde
+        </h1>
+        <p className="text-xs font-sans uppercase tracking-widest text-[#1A1A1A]/60">
+          Explora el catálogo
+        </p>
+      </div>
+
+      {/* Input Minimalista - Línea simple */}
+      <form onSubmit={handleSearch} className="w-full max-w-2xl mx-auto">
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400" />
-          <Input
-            placeholder="Busca por título, autor o código..."
+          <input
+            type="text"
+            placeholder="Buscar..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="h-12 w-full rounded-lg border-stone-200 bg-white py-3 pl-12 pr-4 text-base shadow-sm transition-all duration-200 focus-visible:border-stone-400 focus-visible:shadow-md"
+            className="w-full bg-transparent border-0 border-b-2 border-[#1A1A1A] pb-3 pr-10 text-[#1A1A1A] placeholder:text-[#1A1A1A]/40 focus:outline-none focus:border-[#1A1A1A] transition-colors"
             autoFocus
           />
-          {isSearching && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2">
-              <Loader2 className="h-5 w-5 animate-spin text-stone-400" />
-            </div>
-          )}
+          <div className="absolute right-0 top-1/2 -translate-y-1/2">
+            {isSearching ? (
+              <Loader2 className="h-5 w-5 animate-spin text-[#1A1A1A]/40" />
+            ) : (
+              <Search className="h-5 w-5 text-[#1A1A1A]/40" />
+            )}
+          </div>
         </div>
       </form>
 
       {/* Título de sección */}
       {showFeatured && (
-        <h2 className="text-2xl font-serif font-semibold text-black tracking-tight">
+        <h2 className="text-xl font-serif font-normal text-[#1A1A1A] tracking-tight">
           Colección Destacada
         </h2>
       )}
 
       {hasSearched && hasQuery && !hasResults && !isSearching && (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <BookOpen className="mb-4 h-16 w-16 text-stone-200" />
-          <p className="text-base text-stone-600 font-serif">
+          <BookOpen className="mb-4 h-16 w-16 text-[#E5E5E5]" />
+          <p className="text-base font-serif text-[#1A1A1A]/60">
             No encontramos ese libro
-          </p>
-          <p className="mt-2 text-sm text-stone-500">
-            ¿Quizás querías buscar por autor? Prueba con el apellido del autor.
           </p>
         </div>
       )}
 
-      {/* Resultados - Tarjetas editoriales */}
+      {/* Resultados - Tarjetas Tipográficas Verticales (ratio 2:3) */}
       {hasResults && (
-        <div className="grid gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {books.map((book, index) => {
             const isReservingThis = isReserving === book.id
             const autor = `${book.apellido}, ${book.nombre}`
             const zona = book.zona ?? "General"
-            const zoneColor = getZoneColor(book.zona)
+            const zonaInitial = zona.charAt(0).toUpperCase()
 
             return (
               <div
                 key={book.id}
-                className={`group relative flex flex-row gap-4 rounded-lg border border-stone-200 bg-white p-4 transition-all duration-200 hover:shadow-md ${zoneColor} border-l-4`}
+                className="group relative bg-white border border-[#E5E5E5] transition-all duration-200 hover:border-[#1A1A1A] hover:-translate-y-1"
                 style={{
+                  aspectRatio: '2/3',
                   animationDelay: `${index * 0.03}s`,
                 }}
               >
-                {/* Portada Editorial - Gris con icono */}
-                <div className="relative h-28 w-20 flex-shrink-0 bg-stone-50 rounded border border-stone-100 flex items-center justify-center">
-                  <BookIcon className="h-8 w-8 text-stone-400" />
-                </div>
+                <div className="h-full flex flex-col p-6">
+                  {/* Título - Protagonista */}
+                  <h3 className="text-xl font-serif font-normal text-[#1A1A1A] leading-tight mb-auto">
+                    {book.titulo}
+                  </h3>
 
-                {/* Contenido */}
-                <div className="flex-1 flex flex-col gap-2 min-w-0">
-                  <div>
-                    <h3 className="text-lg font-serif font-semibold text-black leading-tight mb-1">
-                      {book.titulo}
-                    </h3>
-                    <p className="text-xs text-stone-500 uppercase tracking-wider font-sans">
+                  {/* Pie de tarjeta */}
+                  <div className="mt-auto space-y-3">
+                    {/* Autor */}
+                    <p className="text-xs font-sans text-[#1A1A1A]/50 uppercase tracking-wider">
                       {autor}
                     </p>
-                  </div>
 
-                  <div className="flex items-center gap-2 mt-auto">
-                    {zona && (
-                      <span className="inline-flex items-center rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-600">
-                        {zona}
+                    {/* Zona - Esquina minimalista */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono text-[#1A1A1A]/30">
+                        {zonaInitial}
                       </span>
-                    )}
+                      
+                      {/* Botón Reservar - Minimalista */}
+                      <button
+                        type="button"
+                        onClick={() => handleReserve(book)}
+                        disabled={!book.disponible || isReservingThis}
+                        className="text-xs font-sans text-[#1A1A1A] hover:underline disabled:text-[#1A1A1A]/30 disabled:no-underline disabled:cursor-not-allowed transition-all"
+                      >
+                        {!book.disponible ? (
+                          "Reservado"
+                        ) : isReservingThis ? (
+                          <span className="flex items-center gap-1">
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                            ...
+                          </span>
+                        ) : (
+                          "Reservar"
+                        )}
+                      </button>
+                    </div>
                   </div>
-
-                  <Button
-                    type="button"
-                    className="mt-2 w-full sm:w-auto bg-black text-white hover:bg-stone-800 disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed rounded-md"
-                    disabled={!book.disponible || isReservingThis}
-                    onClick={() => handleReserve(book)}
-                  >
-                    {!book.disponible ? (
-                      "Reservado"
-                    ) : isReservingThis ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Reservando...
-                      </>
-                    ) : (
-                      "Reservar"
-                    )}
-                  </Button>
                 </div>
               </div>
             )

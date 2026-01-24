@@ -117,10 +117,13 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-[#E5E5E5];
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[#FDFCF8] text-[#1A1A1A];
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-playfair), serif;
   }
 }
 
