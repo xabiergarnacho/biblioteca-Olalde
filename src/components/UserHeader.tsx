@@ -55,31 +55,31 @@ export default async function UserHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-100 dark:border-zinc-700 bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-md">
-      <div className="grid w-full max-w-5xl grid-cols-3 items-center px-6 py-4 mx-auto">
+      <div className="grid w-full max-w-5xl grid-cols-3 items-center px-3 md:px-6 py-4 mx-auto gap-2">
         {/* Columna 1: Enlace Top Libros */}
         <div className="flex justify-start">
           <Link href="/ranking">
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 px-3 text-slate-600 dark:text-zinc-400 hover:text-[#1A1A1A] dark:hover:text-[#E4E4E7] transition-colors"
+              className="h-8 px-2 md:px-3 text-slate-600 dark:text-zinc-400 hover:text-[#1A1A1A] dark:hover:text-[#E4E4E7] transition-colors"
             >
-              <Trophy className="h-4 w-4 mr-2" />
-              <span className="text-sm font-medium">Top Libros</span>
+              <Trophy className="h-4 w-4 md:mr-2 shrink-0" />
+              <span className="text-xs md:text-sm font-medium hidden sm:inline">Top Libros</span>
             </Button>
           </Link>
         </div>
 
         {/* Columna 2: Información del usuario centrada (Pill) */}
         <div className="flex justify-center">
-          <div className="flex items-center gap-2 rounded-full border border-gray-200 dark:border-zinc-700 bg-gray-100/50 dark:bg-zinc-800/50 backdrop-blur-sm pl-1 pr-4 py-1">
-            <Avatar className="h-7 w-7">
+          <div className="flex items-center gap-2 rounded-full border border-gray-200 dark:border-zinc-700 bg-gray-100/50 dark:bg-zinc-800/50 backdrop-blur-sm pl-1 pr-2 md:pr-4 py-1 max-w-full">
+            <Avatar className="h-7 w-7 shrink-0">
               {avatarUrl ? (
                 <AvatarImage src={avatarUrl} alt={displayName} />
               ) : null}
               <AvatarFallback className="text-xs">{initials}</AvatarFallback>
             </Avatar>
-            <span className="text-sm font-medium text-slate-700 dark:text-[#F4F4F5]">{displayName}</span>
+            <span className="text-xs md:text-sm font-medium text-slate-700 dark:text-[#F4F4F5] truncate max-w-[120px] md:max-w-none">{displayName}</span>
           </div>
         </div>
 
