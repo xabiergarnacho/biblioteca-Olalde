@@ -14,6 +14,7 @@ type LoanWithBook = {
     nombre: string
     apellido: string
     zona: string | null
+    codigo: string
   } | null
 }
 
@@ -69,7 +70,8 @@ export default async function MisPrestamosPage() {
           titulo,
           nombre,
           apellido,
-          zona
+          zona,
+          codigo
         )
       `
       )
@@ -153,13 +155,13 @@ export default async function MisPrestamosPage() {
 
               {/* Derecha: Información estructurada */}
               <div className="flex-1 space-y-6">
-                {/* Código ID - Muy visible */}
+                {/* Código del Libro - Muy visible */}
                 <div>
                   <p className="text-xs font-sans text-[#1A1A1A]/40 dark:text-[#E4E4E7]/40 uppercase tracking-widest mb-2">
                     Código
                   </p>
                   <p className="text-3xl font-mono font-bold text-[#1A1A1A] dark:text-[#E4E4E7]">
-                    {book.id}
+                    {book.codigo}
                   </p>
                 </div>
 
