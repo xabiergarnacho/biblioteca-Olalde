@@ -275,3 +275,77 @@ export async function signOut() {
   redirect("/login")
 }
 
+export async function reportUnlistedBook(title: string) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    throw new Error("No se ha podido obtener la sesión del usuario")
+  }
+
+  const { error } = await supabase.from("incidents").insert({
+    type: "found_unlisted",
+    details: title,
+    user_id: user.id,
+  })
+
+  if (error) {
+    throw new Error("No se ha podido registrar la incidencia")
+  }
+
+  revalidatePath("/")
+}
+
+export async function reportMissingBook(loanId: string, bookId: number) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    throw new Error("No se ha podido obtener la sesión del usuario")
+  }
+
+  // Insertar incidencia
+  const { error: incidentError } = await supabase.from("incidents").insert({
+    type: "missing_book",
+    book_id: bookId,
+    user_id: user.id,
+    status: "pending",
+  })
+
+  if (incidentError) {
+    throw new Error("No se ha podido registrar la incidencia")
+  }
+
+  // Cancelar el préstamo (borrar la fila)
+  const { error: deleteError } = await supabase
+    .from("loans")
+    .delete()
+    .eq("id", loanId)
+
+  if (deleteError) {
+    throw new Error("No se ha podido cancelar el préstamo")
+  }
+
+  // Liberar el libro
+  const { error: updateError } = await supabase
+    .from("books")
+    .update({ disponible: true })
+    .eq("id", bookId)
+
+  if (updateError) {
+    console.error("Error actualizando libro:", updateError)
+    // No lanzamos error aquí porque la incidencia ya se registró
+  }
+
+  revalidatePath("/")
+  revalidatePath("/mis-prestamos")
+}
+

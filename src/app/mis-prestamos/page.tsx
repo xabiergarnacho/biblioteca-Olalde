@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { ReturnBookButton } from "@/components/ReturnBookButton"
+import { ReportMissingBookButton } from "@/components/ReportMissingBookButton"
 import Link from "next/link"
 
 type LoanWithBook = {
@@ -152,6 +153,16 @@ export default async function MisPrestamosPage() {
 
               {/* Derecha: Información estructurada */}
               <div className="flex-1 space-y-6">
+                {/* Código ID - Muy visible */}
+                <div>
+                  <p className="text-xs font-sans text-[#1A1A1A]/40 dark:text-[#E4E4E7]/40 uppercase tracking-widest mb-2">
+                    Código
+                  </p>
+                  <p className="text-3xl font-mono font-bold text-[#1A1A1A] dark:text-[#E4E4E7]">
+                    {book.id}
+                  </p>
+                </div>
+
                 {/* Fecha Límite - Tipografía monoespaciada */}
                 <div>
                   <p className="text-xs font-sans text-[#1A1A1A]/40 dark:text-[#E4E4E7]/40 uppercase tracking-widest mb-2">
@@ -164,7 +175,7 @@ export default async function MisPrestamosPage() {
 
                 {/* Ubicación - Círculo negro con inicial */}
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-[#1A1A1A] flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-[#1A1A1A] flex items-center justify-center shrink-0">
                     <span className="text-white font-mono text-lg font-bold">
                       {zonaInitial}
                     </span>
@@ -188,6 +199,9 @@ export default async function MisPrestamosPage() {
 
         {/* Botón de Devolver - Ancho completo, negro, esquinas rectas */}
         <ReturnBookButton loanId={activeLoan.id} />
+
+        {/* Botón "No lo encuentro" */}
+        <ReportMissingBookButton loanId={activeLoan.id} bookId={book.id} />
 
         {/* Link de volver */}
         <div className="text-center">

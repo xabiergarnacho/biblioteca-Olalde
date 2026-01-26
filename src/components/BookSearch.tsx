@@ -2,13 +2,14 @@
 
 import { useState, useTransition, FormEvent, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { Search, Loader2, BookOpen } from "lucide-react"
+import { Search, Loader2, BookOpen, X } from "lucide-react"
 import { toast } from "sonner"
 
-import { searchBooks, type Book } from "@/app/actions"
+import { searchBooks, type Book, reportUnlistedBook } from "@/app/actions"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "./ui/button"
 import { BookCover } from "./BookCover"
+import { Input } from "./ui/input"
 
 type BookSearchProps = {
   initialBooks?: Book[]
@@ -22,6 +23,9 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
   const [isReserving, setIsReserving] = useState<number | null>(null)
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [hasSearched, setHasSearched] = useState(false)
+  const [showUnlistedModal, setShowUnlistedModal] = useState(false)
+  const [unlistedTitle, setUnlistedTitle] = useState("")
+  const [isReporting, setIsReporting] = useState(false)
 
   // Cargar libros iniciales si no hay búsqueda
   useEffect(() => {
@@ -68,6 +72,30 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
 
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+  }
+
+  const handleReportUnlisted = async () => {
+    if (!unlistedTitle.trim()) {
+      toast.error("Por favor, introduce el título del libro")
+      return
+    }
+
+    setIsReporting(true)
+    try {
+      await reportUnlistedBook(unlistedTitle.trim())
+      toast.success("Gracias. El administrador revisará este libro.")
+      setShowUnlistedModal(false)
+      setUnlistedTitle("")
+    } catch (err) {
+      console.error(err)
+      const message =
+        err instanceof Error
+          ? err.message
+          : "No se ha podido registrar el reporte"
+      toast.error(message)
+    } finally {
+      setIsReporting(false)
+    }
   }
 
   const handleReserve = async (book: Book) => {
@@ -254,8 +282,6 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
           {books.map((book, index) => {
             const isReservingThis = isReserving === book.id
             const autor = `${book.apellido}, ${book.nombre}`
-            const zona = book.zona ?? "General"
-            const zonaInitial = zona.charAt(0).toUpperCase()
 
             return (
               <div
@@ -280,25 +306,20 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
                     {autor}
                   </p>
 
-                  {/* Zona y Botón Reservar */}
-                  <div className="flex items-center justify-between pt-2">
-                    <span className="text-xs font-mono text-[#1A1A1A]/30 dark:text-[#E4E4E7]/30">
-                      {zonaInitial}
-                    </span>
-                    
-                    {/* Botón Reservar - Minimalista */}
+                  {/* Botón Reservar - Más grande y fácil de pulsar */}
+                  <div className="pt-3">
                     <button
                       type="button"
                       onClick={() => handleReserve(book)}
                       disabled={!book.disponible || isReservingThis}
-                      className="text-xs font-sans text-[#1A1A1A] dark:text-[#E4E4E7] hover:underline disabled:text-[#1A1A1A]/30 dark:disabled:text-[#E4E4E7]/30 disabled:no-underline disabled:cursor-not-allowed transition-all"
+                      className="w-full h-12 text-base font-medium text-[#1A1A1A] dark:text-[#E4E4E7] bg-white dark:bg-[#1E1E1E] border border-[#E5E5E5] dark:border-zinc-800 hover:border-[#1A1A1A] dark:hover:border-[#E4E4E7] disabled:text-[#1A1A1A]/30 dark:disabled:text-[#E4E4E7]/30 disabled:border-[#E5E5E5] dark:disabled:border-zinc-800 disabled:cursor-not-allowed transition-all rounded-sm"
                     >
                       {!book.disponible ? (
                         "Reservado"
                       ) : isReservingThis ? (
-                        <span className="flex items-center gap-1">
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                          ...
+                        <span className="flex items-center justify-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Reservando...
                         </span>
                       ) : (
                         "Reservar"
@@ -309,6 +330,80 @@ export function BookSearch({ initialBooks = [] }: BookSearchProps) {
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Enlace para reportar libro no listado */}
+      <div className="text-center">
+        <button
+          type="button"
+          onClick={() => setShowUnlistedModal(true)}
+          className="text-sm font-sans text-[#1A1A1A]/50 dark:text-[#E4E4E7]/50 hover:text-[#1A1A1A] dark:hover:text-[#E4E4E7] hover:underline transition-colors"
+        >
+          ¿Tienes un libro físico que no aparece aquí?
+        </button>
+      </div>
+
+      {/* Modal para reportar libro no listado */}
+      {showUnlistedModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70">
+          <div className="bg-white dark:bg-[#1E1E1E] border border-[#E5E5E5] dark:border-zinc-800 rounded-sm p-8 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-serif font-normal text-[#1A1A1A] dark:text-[#E4E4E7]">
+                Reportar libro no listado
+              </h2>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUnlistedModal(false)
+                  setUnlistedTitle("")
+                }}
+                className="text-[#1A1A1A]/40 dark:text-[#E4E4E7]/40 hover:text-[#1A1A1A] dark:hover:text-[#E4E4E7] transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-sans text-[#1A1A1A] dark:text-[#E4E4E7] mb-2">
+                  Título del libro
+                </label>
+                <Input
+                  type="text"
+                  value={unlistedTitle}
+                  onChange={(e) => setUnlistedTitle(e.target.value)}
+                  placeholder="Introduce el título completo"
+                  className="w-full bg-white dark:bg-[#1E1E1E] border-[#E5E5E5] dark:border-zinc-800 text-[#1A1A1A] dark:text-[#E4E4E7]"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleReportUnlisted()
+                    }
+                  }}
+                />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={handleReportUnlisted}
+                  disabled={isReporting || !unlistedTitle.trim()}
+                  className="flex-1 h-12 bg-[#1A1A1A] text-white font-sans text-sm uppercase tracking-widest hover:bg-[#1A1A1A]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-sm"
+                >
+                  {isReporting ? "Enviando..." : "Enviar"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowUnlistedModal(false)
+                    setUnlistedTitle("")
+                  }}
+                  disabled={isReporting}
+                  className="flex-1 h-12 bg-white dark:bg-[#1E1E1E] border border-[#E5E5E5] dark:border-zinc-800 text-[#1A1A1A] dark:text-[#E4E4E7] font-sans text-sm uppercase tracking-widest hover:border-[#1A1A1A] dark:hover:border-[#E4E4E7] disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-sm"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
