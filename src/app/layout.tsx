@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import UserHeader from "@/components/UserHeader";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -95,6 +96,7 @@ export default function RootLayout({
         className={`${inter.variable} ${playfair.variable} font-sans antialiased min-h-screen bg-[#FDFCF8] text-[#1A1A1A] dark:bg-[#121212] dark:text-[#E4E4E7] transition-colors duration-300`}
       >
         <ThemeProvider>
+          <ServiceWorkerRegistration />
           <Toaster />
           <UserHeader />
           {children}

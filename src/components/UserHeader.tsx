@@ -38,15 +38,20 @@ export default async function UserHeader() {
     (user.user_metadata?.picture as string | undefined) ??
     undefined
 
-  const initials =
-    fullName
-      ?.split(" ")
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase())
-      .join("") ||
-    email?.[0]?.toUpperCase() ||
-    "U"
+  // Calcular iniciales: primera letra del nombre y primera del apellido
+  let initials = "U"
+  if (fullName && fullName.trim()) {
+    const parts = fullName.trim().split(" ").filter(Boolean)
+    if (parts.length >= 2) {
+      // Tomar primera letra del nombre y primera del último apellido
+      initials = (parts[0][0]?.toUpperCase() || "") + (parts[parts.length - 1][0]?.toUpperCase() || "")
+    } else if (parts.length === 1) {
+      // Si solo hay un nombre, tomar las dos primeras letras
+      initials = parts[0].substring(0, 2).toUpperCase()
+    }
+  } else if (email) {
+    initials = email[0]?.toUpperCase() || "U"
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-100 dark:border-zinc-700 bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-md">
