@@ -1,0 +1,32 @@
+name: Keep Supabase Alive
+
+on:
+  # Ejecutar diariamente a las 8:00 AM UTC
+  schedule:
+    - cron: '0 8 * * *'
+  # Permitir ejecución manual desde GitHub Actions
+  workflow_dispatch:
+
+jobs:
+  ping-database:
+    name: Ping Supabase Database
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          echo "Pinging Supabase database to keep it alive..."
+          curl -X GET \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/books?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            -w "\nHTTP Status: %{http_code}\n" \
+            -s -o /dev/null
+          
+          if [ $? -eq 0 ]; then
+            echo "✅ Successfully pinged Supabase database"
+          else
+            echo "❌ Failed to ping Supabase database"
+            exit 1
+          fi
