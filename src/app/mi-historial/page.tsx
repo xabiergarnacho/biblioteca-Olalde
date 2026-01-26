@@ -61,7 +61,26 @@ export default async function MiHistorialPage() {
     console.error("Error consultando historial:", loansError)
   }
 
-  const loans = (returnedLoans ?? []) as LoanWithBook[]
+  // Mapear los datos al tipo correcto
+  // Supabase puede devolver book como objeto único o null
+  const loans: LoanWithBook[] = (returnedLoans ?? []).map((item: any) => {
+    const bookData = Array.isArray(item.book) ? item.book[0] : item.book
+    
+    return {
+      id: item.id,
+      book_id: item.book_id,
+      status: item.status,
+      liked: item.liked ?? null,
+      book: bookData ? {
+        id: bookData.id,
+        titulo: bookData.titulo,
+        nombre: bookData.nombre,
+        apellido: bookData.apellido,
+        zona: bookData.zona,
+        codigo: bookData.codigo,
+      } : null,
+    }
+  })
 
   // Función para formatear fecha aproximada
   // Como no tenemos created_at, usamos una aproximación basada en el orden
@@ -136,7 +155,7 @@ export default async function MiHistorialPage() {
                   className="group relative flex flex-col transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
                 >
                   {/* Portada */}
-                  <div className="aspect-[2/3] mb-3 relative">
+                  <div className="aspect-2/3 mb-3 relative">
                     <BookCover book={bookForCover} className="h-full w-full" />
                     {/* Icono de like */}
                     {loan.liked === true && (
