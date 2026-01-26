@@ -27,6 +27,7 @@ type LoanRow = {
   user_id: string
   book_id: string
   status: string
+  liked: boolean | null
   book?: BookRow
 }
 
@@ -161,7 +162,7 @@ export async function borrowBook(bookId: string | number) {
   revalidatePath("/")
 }
 
-export async function returnBook(loanId: string) {
+export async function returnBook(loanId: string, liked: boolean | null = null) {
   const supabase = await createClient()
 
   const {
@@ -188,6 +189,7 @@ export async function returnBook(loanId: string) {
     .from("loans")
     .update({ 
       status: "returned",
+      liked: liked,
     })
     .eq("id", loanId)
 
@@ -205,6 +207,7 @@ export async function returnBook(loanId: string) {
   }
 
   revalidatePath("/")
+  revalidatePath("/mi-historial")
 }
 
 export async function searchBooks(query: string): Promise<BookRow[]> {

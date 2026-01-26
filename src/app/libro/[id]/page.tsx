@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { BookCover } from "@/components/BookCover"
 import { ReserveBookButton } from "@/components/ReserveBookButton"
 import { ReportMissingBookDetailButton } from "@/components/ReportMissingBookDetailButton"
+import { BookSynopsis } from "@/components/BookSynopsis"
 import Link from "next/link"
 import type { Book } from "@/app/actions"
 
@@ -123,6 +124,9 @@ export default async function BookDetailPage({ params }: PageProps) {
                   </div>
                 )}
               </div>
+
+              {/* Sinopsis desde Google Books */}
+              <BookSynopsis titulo={book.titulo} autor={autor} />
 
               {/* Botones de Acción */}
               <div className="pt-6 space-y-3">
