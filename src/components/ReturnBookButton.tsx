@@ -23,11 +23,14 @@ export function ReturnBookButton({ loanId }: ReturnBookButtonProps) {
     startTransition(async () => {
       try {
         await returnBook(loanId, liked)
-        toast.success("Libro devuelto correctamente")
         setShowModal(false)
+        toast.success("Libro devuelto correctamente")
         
-        // Redirigir al buscador inmediatamente
-        router.push("/")
+        // Refrescar la página actual y luego redirigir
+        router.refresh()
+        setTimeout(() => {
+          router.push("/")
+        }, 100)
       } catch (err) {
         console.error(err)
         const message =
@@ -35,6 +38,7 @@ export function ReturnBookButton({ loanId }: ReturnBookButtonProps) {
             ? err.message
             : "No se ha podido registrar la devolución"
         toast.error(message)
+        setShowModal(false)
       }
     })
   }
@@ -71,18 +75,16 @@ export function ReturnBookButton({ loanId }: ReturnBookButtonProps) {
                 type="button"
                 onClick={() => handleReturn(true)}
                 disabled={isPending}
-                className="w-full h-12 bg-[#1A1A1A] dark:bg-[#E4E4E7] text-white dark:text-[#1A1A1A] font-sans text-sm uppercase tracking-wider hover:bg-[#1A1A1A]/90 dark:hover:bg-[#E4E4E7]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-lg flex items-center justify-center gap-2"
+                className="w-full h-12 bg-[#1A1A1A] dark:bg-[#E4E4E7] text-white dark:text-[#1A1A1A] font-sans text-sm uppercase tracking-wider hover:bg-[#1A1A1A]/90 dark:hover:bg-[#E4E4E7]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-lg flex items-center justify-center"
               >
-                <span>👍</span>
                 <span>Me ha gustado</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleReturn(false)}
                 disabled={isPending}
-                className="w-full h-12 bg-white dark:bg-[#1E1E1E] border border-[#E5E5E5] dark:border-zinc-800 text-[#1A1A1A] dark:text-[#E4E4E7] font-sans text-sm uppercase tracking-wider hover:border-[#1A1A1A] dark:hover:border-[#E4E4E7] disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-lg flex items-center justify-center gap-2"
+                className="w-full h-12 bg-white dark:bg-[#1E1E1E] border border-[#E5E5E5] dark:border-zinc-800 text-[#1A1A1A] dark:text-[#E4E4E7] font-sans text-sm uppercase tracking-wider hover:border-[#1A1A1A] dark:hover:border-[#E4E4E7] disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-lg flex items-center justify-center"
               >
-                <span>😐</span>
                 <span>Normal</span>
               </button>
             </div>

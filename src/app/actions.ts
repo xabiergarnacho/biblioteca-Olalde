@@ -174,17 +174,35 @@ export async function returnBook(loanId: string, liked: boolean | null = null) {
     throw new Error("No se ha podido obtener la sesión del usuario")
   }
 
+  // Verificar que el préstamo existe y pertenece al usuario
   const { data: loan, error: loanError } = await supabase
     .from("loans")
     .select("*")
     .eq("id", loanId)
-    .eq("status", "active")
+    .eq("user_id", session.user.id)
     .single<LoanRow>()
 
   if (loanError || !loan) {
-    throw new Error("No se ha encontrado el préstamo activo")
+    throw new Error("No se ha encontrado el préstamo")
   }
 
+  // Si ya está devuelto, solo actualizar el liked si es necesario
+  if (loan.status === "returned") {
+    if (liked !== null && loan.liked !== liked) {
+      const { error: updateLikedError } = await supabase
+        .from("loans")
+        .update({ liked: liked })
+        .eq("id", loanId)
+
+      if (updateLikedError) {
+        throw new Error("No se ha podido actualizar la valoración")
+      }
+      revalidatePath("/mi-historial")
+    }
+    return // Ya está devuelto, no hacer nada más
+  }
+
+  // Actualizar el préstamo a devuelto
   const { error: updateLoanError } = await supabase
     .from("loans")
     .update({ 
@@ -192,11 +210,13 @@ export async function returnBook(loanId: string, liked: boolean | null = null) {
       liked: liked,
     })
     .eq("id", loanId)
+    .eq("status", "active") // Solo actualizar si aún está activo
 
   if (updateLoanError) {
     throw new Error("No se ha podido actualizar el préstamo")
   }
 
+  // Liberar el libro
   const { error: updateBookError } = await supabase
     .from("books")
     .update({ disponible: true })
@@ -207,6 +227,7 @@ export async function returnBook(loanId: string, liked: boolean | null = null) {
   }
 
   revalidatePath("/")
+  revalidatePath("/mis-prestamos")
   revalidatePath("/mi-historial")
 }
 

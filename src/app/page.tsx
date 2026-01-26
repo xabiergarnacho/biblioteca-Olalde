@@ -81,7 +81,8 @@ export default async function Home() {
           nombre,
           apellido,
           disponible,
-          zona
+          zona,
+          codigo
         )
       `
       )
@@ -107,7 +108,6 @@ export default async function Home() {
   }
 
   const book = activeLoan?.book;
-  const zone = book?.zona ?? null;
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-[#FDFCF8] dark:bg-[#121212] px-4 py-16 font-sans">
@@ -116,9 +116,7 @@ export default async function Home() {
         {activeLoan && book ? (
           <ActiveLoanView
             loanId={activeLoan.id}
-            bookTitle={book.titulo}
-            zone={zone}
-            shelf={null}
+            book={book}
           />
         ) : (
           <BookSearch initialBooks={initialBooks} />
