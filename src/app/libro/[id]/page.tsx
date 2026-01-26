@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { BookCover } from "@/components/BookCover"
 import { ReserveBookButton } from "@/components/ReserveBookButton"
 import { ReportMissingBookDetailButton } from "@/components/ReportMissingBookDetailButton"
+import { NotifyWhenAvailableButton } from "@/components/NotifyWhenAvailableButton"
 import { BookSynopsis } from "@/components/BookSynopsis"
 import Link from "next/link"
 import type { Book } from "@/app/actions"
@@ -43,6 +44,45 @@ export default async function BookDetailPage({ params }: PageProps) {
     notFound()
   }
 
+  // Si el libro no está disponible, consultar información del préstamo activo
+  let estimatedReturnDate: string | null = null
+  let isOnWaitlist = false
+
+  if (!book.disponible) {
+    // Consultar préstamo activo para obtener fecha de creación
+    const { data: activeLoan } = await supabase
+      .from("loans")
+      .select("created_at")
+      .eq("book_id", bookId)
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (activeLoan?.created_at) {
+      // Calcular fecha estimada de devolución (15 días desde la creación)
+      const loanDate = new Date(activeLoan.created_at)
+      const returnDate = new Date(loanDate)
+      returnDate.setDate(returnDate.getDate() + 15)
+      
+      estimatedReturnDate = returnDate.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      })
+    }
+
+    // Verificar si el usuario está en la waitlist
+    const { data: waitlistEntry } = await supabase
+      .from("waitlist")
+      .select("id")
+      .eq("book_id", bookId)
+      .eq("user_id", user.id)
+      .maybeSingle()
+
+    isOnWaitlist = !!waitlistEntry
+  }
+
   const autor = `${book.apellido}, ${book.nombre}`
   const zona = book.zona ?? "General"
 
@@ -63,7 +103,7 @@ export default async function BookDetailPage({ params }: PageProps) {
           <div className="flex flex-col md:flex-row gap-8 md:gap-12">
             {/* Izquierda: Portada Grande */}
             <div className="shrink-0 w-full md:w-80">
-              <div className="aspect-[2/3] w-full">
+              <div className="aspect-2/3 w-full">
                 <BookCover book={book} className="h-full w-full" />
               </div>
             </div>
@@ -111,10 +151,17 @@ export default async function BookDetailPage({ params }: PageProps) {
               {/* Estado de Disponibilidad */}
               <div className="pt-4 border-t border-[#E5E5E5] dark:border-zinc-800">
                 {!book.disponible ? (
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-sans text-red-600 dark:text-red-400 font-medium uppercase tracking-wider">
-                      No disponible
-                    </span>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-sans text-red-600 dark:text-red-400 font-medium uppercase tracking-wider">
+                        No disponible
+                      </span>
+                    </div>
+                    {estimatedReturnDate && (
+                      <p className="text-xs font-sans text-[#1A1A1A]/60 dark:text-[#E4E4E7]/60">
+                        Fecha estimada de devolución: {estimatedReturnDate}
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
@@ -133,11 +180,17 @@ export default async function BookDetailPage({ params }: PageProps) {
                 {book.disponible ? (
                   <ReserveBookButton bookId={book.id} />
                 ) : (
-                  <div className="w-full h-12 flex items-center justify-center bg-gray-100 dark:bg-zinc-800 text-[#1A1A1A]/30 dark:text-[#E4E4E7]/30 border border-[#E5E5E5] dark:border-zinc-800 rounded-sm cursor-not-allowed">
-                    <span className="text-sm font-sans uppercase tracking-widest">
-                      No disponible para préstamo
-                    </span>
-                  </div>
+                  <>
+                    <div className="w-full h-12 flex items-center justify-center bg-gray-100 dark:bg-zinc-800 text-[#1A1A1A]/30 dark:text-[#E4E4E7]/30 border border-[#E5E5E5] dark:border-zinc-800 rounded-sm cursor-not-allowed">
+                      <span className="text-sm font-sans uppercase tracking-widest text-center px-4">
+                        {estimatedReturnDate 
+                          ? `Prestado (Vuelve aprox. el ${estimatedReturnDate})`
+                          : "No disponible para préstamo"}
+                      </span>
+                    </div>
+                    {/* Botón de notificación */}
+                    <NotifyWhenAvailableButton bookId={book.id} isOnWaitlist={isOnWaitlist} />
+                  </>
                 )}
 
                 {/* Botón secundario: Reportar libro faltante */}
