@@ -2,8 +2,9 @@ import { createClient } from "@/lib/supabase/server"
 import { signOut } from "@/app/actions"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { Button } from "./ui/button"
-import { LogOut } from "lucide-react"
+import { LogOut, Trophy } from "lucide-react"
 import { ThemeToggle } from "./ThemeToggle"
+import Link from "next/link"
 
 export default async function UserHeader() {
   // Verificar que las variables de entorno estén configuradas
@@ -50,8 +51,19 @@ export default async function UserHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-100 dark:border-zinc-700 bg-white/80 dark:bg-[#18181B]/80 backdrop-blur-md">
       <div className="grid w-full max-w-5xl grid-cols-3 items-center px-6 py-4 mx-auto">
-        {/* Columna 1: Vacía para equilibrio */}
-        <div></div>
+        {/* Columna 1: Enlace Top Libros */}
+        <div className="flex justify-start">
+          <Link href="/ranking">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-3 text-slate-600 dark:text-zinc-400 hover:text-[#1A1A1A] dark:hover:text-[#E4E4E7] transition-colors"
+            >
+              <Trophy className="h-4 w-4 mr-2" />
+              <span className="text-sm font-medium">Top Libros</span>
+            </Button>
+          </Link>
+        </div>
 
         {/* Columna 2: Información del usuario centrada (Pill) */}
         <div className="flex justify-center">
