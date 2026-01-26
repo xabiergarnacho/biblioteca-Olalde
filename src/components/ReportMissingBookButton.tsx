@@ -38,7 +38,7 @@ export function ReportMissingBookButton({ loanId, bookId }: ReportMissingBookBut
       type="button"
       onClick={handleReport}
       disabled={isPending}
-      className="w-full h-12 text-sm font-sans text-red-600 dark:text-red-400 bg-white dark:bg-[#1E1E1E] border border-red-300 dark:border-red-800 hover:border-red-500 dark:hover:border-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-sm uppercase tracking-widest"
+      className="w-full h-12 text-sm font-sans text-red-600 dark:text-red-400 bg-white dark:bg-[#1E1E1E] border-2 border-red-300 dark:border-red-800 hover:border-red-500 dark:hover:border-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-lg uppercase tracking-wider font-medium"
     >
       {isPending ? "Reportando..." : "No encuentro el libro en la estantería"}
     </button>

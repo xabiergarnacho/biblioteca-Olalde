@@ -72,7 +72,7 @@ export default function LoginPage() {
               alt="Logotipo Olalde"
               width={192}
               height={120}
-              className="mx-auto dark:invert dark:brightness-0 dark:invert"
+              className="mx-auto"
               priority
             />
             <p className="text-lg text-gray-500 dark:text-gray-600 font-medium mt-4 mb-8">

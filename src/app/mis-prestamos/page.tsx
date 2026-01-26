@@ -2,7 +2,9 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { ReturnBookButton } from "@/components/ReturnBookButton"
 import { ReportMissingBookButton } from "@/components/ReportMissingBookButton"
+import { BookCover } from "@/components/BookCover"
 import Link from "next/link"
+import type { Book } from "@/app/actions"
 
 type LoanWithBook = {
   id: string
@@ -133,82 +135,129 @@ export default async function MisPrestamosPage() {
     year: 'numeric'
   })
 
+  // Convertir book a tipo Book para BookCover
+  const bookForCover: Book = {
+    id: book.id,
+    titulo: book.titulo,
+    nombre: book.nombre,
+    apellido: book.apellido,
+    genero: null,
+    tema: null,
+    recomendado: null,
+    calificacion: null,
+    codigo: book.codigo,
+    editorial: null,
+    disponible: false,
+    zona: book.zona,
+  }
+
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-[#FDFCF8] dark:bg-[#121212] px-4 py-16 font-sans">
-      <main className="flex w-full max-w-3xl flex-col gap-8">
-        {/* Ticket de Préstamo - Estilo Elegante */}
-        <div className="bg-white dark:bg-[#1E1E1E] border border-[#E5E5E5] dark:border-zinc-800 relative">
-          {/* Borde discontinuo superior (simula ticket arrancable) */}
-          <div className="absolute top-0 left-0 right-0 h-px border-t-2 border-dashed border-[#E5E5E5] dark:border-zinc-800"></div>
-          
-          <div className="p-8 md:p-12">
-            <div className="flex flex-col md:flex-row gap-8 md:gap-12">
-              {/* Izquierda: Título y Autor */}
-              <div className="flex-1">
-                <h1 className="text-3xl md:text-4xl font-serif font-normal text-[#1A1A1A] dark:text-[#E4E4E7] leading-tight mb-4">
-                  {book.titulo}
-                </h1>
-                <p className="text-sm font-sans text-[#1A1A1A]/60 dark:text-[#E4E4E7]/60 uppercase tracking-widest">
-                  {autor}
-                </p>
+      <main className="flex w-full max-w-5xl flex-col gap-8">
+        {/* Header */}
+        <div className="text-center">
+          <h1 className="text-2xl font-serif font-normal text-[#1A1A1A] dark:text-[#E4E4E7] tracking-tight mb-2">
+            Tienes un libro prestado
+          </h1>
+          <p className="text-sm font-sans text-[#1A1A1A]/50 dark:text-[#E4E4E7]/50 uppercase tracking-widest">
+            Información de tu préstamo activo
+          </p>
+        </div>
+
+        {/* Tarjeta Principal Mejorada */}
+        <div className="bg-white dark:bg-[#1E1E1E] border border-[#E5E5E5] dark:border-zinc-800 rounded-lg shadow-sm overflow-hidden">
+          <div className="p-8 md:p-10">
+            <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+              {/* Izquierda: Portada del Libro */}
+              <div className="shrink-0 w-full lg:w-64">
+                <div className="aspect-[2/3] w-full max-w-xs mx-auto lg:mx-0">
+                  <BookCover book={bookForCover} className="h-full w-full" />
+                </div>
               </div>
 
-              {/* Derecha: Información estructurada */}
+              {/* Derecha: Información del Libro */}
               <div className="flex-1 space-y-6">
-                {/* Código del Libro - Muy visible */}
-                <div>
+                {/* Título y Autor */}
+                <div className="pb-6 border-b border-[#E5E5E5] dark:border-zinc-800">
                   <p className="text-xs font-sans text-[#1A1A1A]/40 dark:text-[#E4E4E7]/40 uppercase tracking-widest mb-2">
-                    Código
+                    Libro
                   </p>
-                  <p className="text-3xl font-mono font-bold text-[#1A1A1A] dark:text-[#E4E4E7]">
-                    {book.codigo}
+                  <h2 className="text-2xl md:text-3xl font-serif font-normal text-[#1A1A1A] dark:text-[#E4E4E7] leading-tight mb-2">
+                    {book.titulo}
+                  </h2>
+                  <p className="text-base font-sans text-[#1A1A1A]/60 dark:text-[#E4E4E7]/60 uppercase tracking-wider">
+                    {autor}
                   </p>
                 </div>
 
-                {/* Fecha Límite - Tipografía monoespaciada */}
-                <div>
-                  <p className="text-xs font-sans text-[#1A1A1A]/40 dark:text-[#E4E4E7]/40 uppercase tracking-widest mb-2">
-                    Fecha Límite
-                  </p>
-                  <p className="text-2xl font-mono text-[#1A1A1A] dark:text-[#E4E4E7]">
-                    {formattedDate}
-                  </p>
-                </div>
-
-                {/* Ubicación - Círculo negro con inicial */}
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-[#1A1A1A] flex items-center justify-center shrink-0">
-                    <span className="text-white font-mono text-lg font-bold">
-                      {zonaInitial}
-                    </span>
+                {/* Grid de Información */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Código del Libro */}
+                  <div className="bg-[#FDFCF8] dark:bg-[#18181B] border border-[#E5E5E5] dark:border-zinc-800 rounded-sm p-4">
+                    <p className="text-xs font-sans text-[#1A1A1A]/40 dark:text-[#E4E4E7]/40 uppercase tracking-widest mb-2">
+                      Código
+                    </p>
+                    <p className="text-2xl font-mono font-bold text-[#1A1A1A] dark:text-[#E4E4E7]">
+                      {book.codigo}
+                    </p>
+                    <p className="text-xs font-sans text-[#1A1A1A]/50 dark:text-[#E4E4E7]/50 mt-1">
+                      Busca este código en la etiqueta
+                    </p>
                   </div>
-                  <div>
-                    <p className="text-xs font-sans text-[#1A1A1A]/40 dark:text-[#E4E4E7]/40 uppercase tracking-widest mb-1">
-                      Ubicación
+
+                  {/* Fecha Límite */}
+                  <div className="bg-[#FDFCF8] dark:bg-[#18181B] border border-[#E5E5E5] dark:border-zinc-800 rounded-sm p-4">
+                    <p className="text-xs font-sans text-[#1A1A1A]/40 dark:text-[#E4E4E7]/40 uppercase tracking-widest mb-2">
+                      Fecha Límite
                     </p>
-                    <p className="text-base font-sans text-[#1A1A1A] dark:text-[#E4E4E7]">
-                      {zona}
+                    <p className="text-2xl font-mono font-bold text-[#1A1A1A] dark:text-[#E4E4E7]">
+                      {formattedDate}
                     </p>
+                    <p className="text-xs font-sans text-[#1A1A1A]/50 dark:text-[#E4E4E7]/50 mt-1">
+                      Día de devolución
+                    </p>
+                  </div>
+                </div>
+
+                {/* Ubicación de Devolución */}
+                <div className="bg-[#FDFCF8] dark:bg-[#18181B] border border-[#E5E5E5] dark:border-zinc-800 rounded-sm p-4">
+                  <p className="text-xs font-sans text-[#1A1A1A]/40 dark:text-[#E4E4E7]/40 uppercase tracking-widest mb-3">
+                    Ubicación de devolución
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-full bg-[#1A1A1A] dark:bg-[#E4E4E7] flex items-center justify-center shrink-0">
+                      <span className="text-white dark:text-[#1A1A1A] font-mono text-xl font-bold">
+                        {zonaInitial}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-lg font-sans font-medium text-[#1A1A1A] dark:text-[#E4E4E7]">
+                        {zona}
+                      </p>
+                      <p className="text-xs font-sans text-[#1A1A1A]/50 dark:text-[#E4E4E7]/50 mt-1">
+                        Devuelve el libro en esta zona
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Borde discontinuo inferior */}
-          <div className="absolute bottom-0 left-0 right-0 h-px border-b-2 border-dashed border-[#E5E5E5] dark:border-zinc-800"></div>
         </div>
 
-        {/* Botón de Devolver - Ancho completo, negro, esquinas rectas */}
-        <ReturnBookButton loanId={activeLoan.id} />
+        {/* Botones de Acción */}
+        <div className="space-y-3">
+          {/* Botón Principal: Devolver */}
+          <ReturnBookButton loanId={activeLoan.id} />
 
-        {/* Botón "No lo encuentro" */}
-        <ReportMissingBookButton loanId={activeLoan.id} bookId={book.id} />
+          {/* Botón Secundario: No lo encuentro */}
+          <ReportMissingBookButton loanId={activeLoan.id} bookId={book.id} />
+        </div>
 
         {/* Link de volver */}
         <div className="text-center">
           <Link href="/">
-            <button className="text-xs font-sans text-[#1A1A1A]/40 dark:text-[#E4E4E7]/40 hover:text-[#1A1A1A] dark:hover:text-[#E4E4E7] uppercase tracking-widest">
+            <button className="text-sm font-sans text-[#1A1A1A]/50 dark:text-[#E4E4E7]/50 hover:text-[#1A1A1A] dark:hover:text-[#E4E4E7] hover:underline transition-colors uppercase tracking-widest">
               ← Volver al buscador
             </button>
           </Link>
