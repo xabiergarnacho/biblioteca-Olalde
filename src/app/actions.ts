@@ -349,3 +349,31 @@ export async function reportMissingBook(loanId: string, bookId: number) {
   revalidatePath("/mis-prestamos")
 }
 
+export async function reportMissingBookFromDetail(bookId: number) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    throw new Error("No se ha podido obtener la sesión del usuario")
+  }
+
+  // Insertar incidencia (sin préstamo activo)
+  const { error: incidentError } = await supabase.from("incidents").insert({
+    type: "missing_book",
+    book_id: bookId,
+    user_id: user.id,
+    status: "pending",
+  })
+
+  if (incidentError) {
+    throw new Error("No se ha podido registrar la incidencia")
+  }
+
+  revalidatePath("/")
+  revalidatePath(`/libro/${bookId}`)
+}
+
