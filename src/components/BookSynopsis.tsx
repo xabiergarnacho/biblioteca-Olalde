@@ -21,7 +21,10 @@ export function BookSynopsis({ titulo, autor }: BookSynopsisProps) {
         
         // Construir query para Google Books API
         const query = `intitle:${cleanTitulo}+inauthor:${cleanAutor}`
-        const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=1`
+        
+        // Usar la API key si está disponible para evitar rate limits
+        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY
+        const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=1${apiKey ? `&key=${apiKey}` : ''}`
 
         const response = await fetch(url)
         if (!response.ok) {

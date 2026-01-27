@@ -58,8 +58,6 @@ export default async function MisPrestamosPage() {
   let activeLoan: LoanWithBook | null = null
 
   try {
-    console.log("Consultando préstamo activo para usuario:", user.id)
-    
     const { data, error } = await supabase
       .from("loans")
       .select(
@@ -85,12 +83,8 @@ export default async function MisPrestamosPage() {
       console.error("Error consultando préstamo activo:", error)
       console.error("Detalles del error:", JSON.stringify(error, null, 2))
     } else {
-      console.log("Resultado de la consulta:", data)
       if (data) {
         activeLoan = data
-        console.log("Préstamo activo encontrado:", activeLoan)
-      } else {
-        console.log("No se encontró préstamo activo")
       }
     }
   } catch (err) {

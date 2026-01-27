@@ -8,8 +8,6 @@ export function ServiceWorkerRegistration() {
       navigator.serviceWorker
         .register('/sw.js', { scope: '/' })
         .then((registration) => {
-          console.log('Service Worker registered successfully:', registration.scope)
-          
           // Verificar actualizaciones periódicamente
           setInterval(() => {
             registration.update()

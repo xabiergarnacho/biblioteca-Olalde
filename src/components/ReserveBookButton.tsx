@@ -32,26 +32,8 @@ export function ReserveBookButton({ bookId }: ReserveBookButtonProps) {
 
       const userId = user.id
 
-      // 1. Verificar préstamos activos (Límite 1)
-      const { data: activeLoans, error: loanError } = await supabase
-        .from("loans")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("status", "active")
-
-      if (loanError) {
-        console.error("Error verificando préstamos activos:", loanError)
-        toast.error("Error de conexión. Intenta recargar la página.")
-        return
-      }
-
-      // 2. Condición Estricta: Solo bloquea si tiene 1 o más préstamos activos
-      if (activeLoans && activeLoans.length > 0) {
-        toast.error("Ya tienes un libro en préstamo. Debes devolverlo antes.")
-        return
-      }
-
-      // 3. Si pasa la verificación, proceder con la reserva
+      // La base de datos se encarga de verificar la restricción de un solo préstamo activo
+      // mediante el UNIQUE INDEX. Si falla, capturamos el error 23505 abajo
       let loanId: string | null = null
 
       try {
@@ -68,6 +50,23 @@ export function ReserveBookButton({ bookId }: ReserveBookButtonProps) {
 
         if (insertError) {
           console.error("Error insertando préstamo:", insertError)
+          
+          // Detectar violación de restricción UNIQUE (ya tienes un préstamo activo)
+          // PostgreSQL error code 23505 = unique_violation
+          if (
+            insertError.code === '23505' || 
+            insertError.message?.includes('one_active_loan_per_user') ||
+            insertError.message?.includes('duplicate key')
+          ) {
+            toast.error("¡Ya tienes un libro activo! Devuélvelo antes de coger otro.")
+            
+            // Redirigir a Mis Préstamos después de 1.5 segundos
+            setTimeout(() => {
+              router.push("/mis-prestamos")
+            }, 1500)
+            return
+          }
+          
           throw new Error(`No se ha podido registrar el préstamo: ${insertError.message}`)
         }
 

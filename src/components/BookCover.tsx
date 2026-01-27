@@ -8,23 +8,6 @@ type BookCoverProps = {
   className?: string
 }
 
-// Función para generar color de fallback basado en el título
-function getFallbackColor(titulo: string): string {
-  // Colores suaves aleatorios basados en el hash del título
-  const colors = [
-    'bg-stone-200 dark:bg-stone-700',
-    'bg-amber-100 dark:bg-amber-900/30',
-    'bg-blue-100 dark:bg-blue-900/30',
-    'bg-slate-200 dark:bg-slate-700',
-    'bg-zinc-200 dark:bg-zinc-700',
-    'bg-neutral-200 dark:bg-neutral-700',
-  ]
-  
-  // Generar índice basado en el título
-  const hash = titulo.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
-  return colors[hash % colors.length]
-}
-
 export function BookCover({ book, className = "" }: BookCoverProps) {
   const [imageError, setImageError] = useState(false)
   const [imageLoading, setImageLoading] = useState(true)
@@ -42,24 +25,23 @@ export function BookCover({ book, className = "" }: BookCoverProps) {
     setImageError(false)
   }
 
-  const fallbackColor = getFallbackColor(book.titulo)
+  // Fallback Editorial: Diseño infalible cuando no hay imagen o falla la carga
+  const FallbackEditorial = () => (
+    <div
+      className={`aspect-[2/3] w-full bg-[#E5E5E5] dark:bg-[#1E1E1E] p-4 flex flex-col justify-center items-center text-center border border-gray-200 dark:border-gray-800 rounded-sm ${className}`}
+    >
+      <h3 className="font-serif text-gray-900 dark:text-gray-100 font-bold leading-tight line-clamp-3 text-sm md:text-base px-2">
+        {book.titulo}
+      </h3>
+      <p className="font-sans text-xs text-gray-500 dark:text-gray-400 mt-2 uppercase tracking-wider">
+        {book.apellido}, {book.nombre}
+      </p>
+    </div>
+  )
 
-  // Si hay error, mostrar fallback con color y título
+  // Si hay error de imagen, mostrar fallback editorial
   if (imageError) {
-    return (
-      <div
-        className={`${fallbackColor} border border-[#E5E5E5] dark:border-zinc-800 rounded-sm shadow-sm flex items-center justify-center ${className}`}
-        style={{ aspectRatio: '2/3' }}
-      >
-        <div className="p-4 text-center">
-          <h3 className="text-base md:text-lg font-serif font-normal text-[#1A1A1A] dark:text-[#E4E4E7] leading-tight px-2">
-            {book.titulo.length > 60 
-              ? `${book.titulo.substring(0, 60)}...` 
-              : book.titulo}
-          </h3>
-        </div>
-      </div>
-    )
+    return <FallbackEditorial />
   }
 
   // Intentar cargar imagen real
@@ -81,13 +63,13 @@ export function BookCover({ book, className = "" }: BookCoverProps) {
 
       {/* Estado de carga - Fallback mientras carga */}
       {imageLoading && (
-        <div className={`absolute inset-0 ${fallbackColor} flex items-center justify-center`}>
-          <div className="p-4 text-center">
-            <h3 className="text-sm font-serif font-normal text-[#1A1A1A]/60 dark:text-[#E4E4E7]/60 leading-tight px-2">
-              {book.titulo.length > 50 
-                ? `${book.titulo.substring(0, 50)}...` 
+        <div className="absolute inset-0 bg-gray-100 dark:bg-zinc-900 flex items-center justify-center p-4">
+          <div className="text-center">
+            <p className="font-serif font-normal text-gray-700/60 dark:text-gray-300/60 leading-tight text-xs">
+              {book.titulo.length > 60 
+                ? `${book.titulo.substring(0, 60)}...` 
                 : book.titulo}
-            </h3>
+            </p>
           </div>
         </div>
       )}

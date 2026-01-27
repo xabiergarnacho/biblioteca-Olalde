@@ -61,9 +61,32 @@ export default async function MiHistorialPage() {
     console.error("Error consultando historial:", loansError)
   }
 
+  // Tipo para la respuesta de Supabase con join
+  type SupabaseLoanResponse = {
+    id: string
+    book_id: string
+    status: string
+    liked: boolean | null
+    book: {
+      id: number
+      titulo: string
+      nombre: string
+      apellido: string
+      zona: string | null
+      codigo: string
+    } | {
+      id: number
+      titulo: string
+      nombre: string
+      apellido: string
+      zona: string | null
+      codigo: string
+    }[] | null
+  }
+
   // Mapear los datos al tipo correcto
-  // Supabase puede devolver book como objeto único o null
-  const loans: LoanWithBook[] = (returnedLoans ?? []).map((item: any) => {
+  // Supabase puede devolver book como objeto único o array
+  const loans: LoanWithBook[] = (returnedLoans as SupabaseLoanResponse[] ?? []).map((item) => {
     const bookData = Array.isArray(item.book) ? item.book[0] : item.book
     
     return {

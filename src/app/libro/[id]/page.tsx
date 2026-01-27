@@ -7,11 +7,60 @@ import { NotifyWhenAvailableButton } from "@/components/NotifyWhenAvailableButto
 import { BookSynopsis } from "@/components/BookSynopsis"
 import Link from "next/link"
 import type { Book } from "@/app/actions"
+import type { Metadata } from "next"
 
 export const dynamic = 'force-dynamic'
 
 type PageProps = {
   params: Promise<{ id: string }>
+}
+
+// Generar metadata dinámica para SEO
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params
+  const bookId = parseInt(id, 10)
+
+  if (isNaN(bookId)) {
+    return {
+      title: "Libro no encontrado | Biblioteca Olalde",
+      description: "El libro solicitado no existe en nuestro catálogo.",
+    }
+  }
+
+  try {
+    const supabase = await createClient()
+    const { data: book, error } = await supabase
+      .from("books")
+      .select("*")
+      .eq("id", bookId)
+      .single<Book>()
+
+    if (error || !book) {
+      return {
+        title: "Libro no encontrado | Biblioteca Olalde",
+        description: "El libro solicitado no existe en nuestro catálogo.",
+      }
+    }
+
+    const autor = `${book.apellido}, ${book.nombre}`
+    const disponibilidad = book.disponible ? "Disponible" : "No disponible"
+
+    return {
+      title: `${book.titulo} | Biblioteca Olalde`,
+      description: `${book.titulo} de ${autor}. ${disponibilidad} para préstamo. Código: ${book.codigo} | Zona: ${book.zona || "General"}`,
+      openGraph: {
+        title: `${book.titulo} | Biblioteca Olalde`,
+        description: `${book.titulo} de ${autor}. ${disponibilidad} para préstamo.`,
+        type: "book",
+      },
+    }
+  } catch (error) {
+    console.error("Error generando metadata:", error)
+    return {
+      title: "Biblioteca Olalde",
+      description: "Sistema de préstamos de la Biblioteca Olalde",
+    }
+  }
 }
 
 export default async function BookDetailPage({ params }: PageProps) {
